@@ -1,0 +1,13 @@
+{
+    "title": "Locations Demo",
+    "conversation_history": [],
+    "characters": [],
+    "locations": [
+        {
+            "name": "Bordeaux"
+        },
+        {
+            "name": "GME Trading Floor"
+        }
+    ]
+}

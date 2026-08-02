@@ -1,0 +1,20 @@
+{
+    "title": "Episode Test",
+    "conversation_history": [],
+    "characters": [
+        {
+            "name": "Zoe"
+        }
+    ],
+    "locations": [
+        {
+            "name": "London"
+        }
+    ],
+    "episodes": [
+        {
+            "title": "Pilot",
+            "logline": ""
+        }
+    ]
+}

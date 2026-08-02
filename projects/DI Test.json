@@ -1,0 +1,12 @@
+{
+    "title": "DI Test",
+    "conversation_history": [],
+    "characters": [
+        {
+            "name": "Zoe Nakada"
+        },
+        {
+            "name": "Hiro Nakada"
+        }
+    ]
+}

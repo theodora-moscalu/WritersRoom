@@ -1,0 +1,246 @@
+{
+    "title": "Episode Demo",
+    "conversation_history": [
+        {
+            "role": "user",
+            "content": "qiut"
+        },
+        {
+            "role": "assistant",
+            "content": "Apologies if I misunderstood. If you're looking to discuss TV writing, plot structure, character development, or any other creative challenges, I'm here to help. Let me know how I can assist!"
+        },
+        {
+            "role": "user",
+            "content": "qui"
+        },
+        {
+            "role": "assistant",
+            "content": "Apologies for the confusion! If you have any questions about TV writing, plot structure, character arcs, or anything related to storytelling, feel free to clarify\u2014either about a specific project, a creative challenge, or just brainstorming ideas. I'm here to help!"
+        },
+        {
+            "role": "user",
+            "content": "1"
+        },
+        {
+            "role": "assistant",
+            "content": "Apologies for the confusion! If you have a specific question, need help with a plot point, or want to brainstorm a story idea, feel free to clarify\u2014either about a specific project, a creative challenge, or just brainstorming ideas. I'm here to help!"
+        },
+        {
+            "role": "user",
+            "content": "project list"
+        },
+        {
+            "role": "assistant",
+            "content": "I'm here to help you brainstorm, structure, or refine TV projects\u2014whether you're looking for fresh ideas, help with plot development, or guidance on building a season arc. Let me know what you're working on or what kind of project you're interested in (e.g., drama, comedy, sci-fi, thriller, etc.), and I\u2019ll tailor my assistance to your needs.  \n\nFor example:  \n- **Genre**: Are you leaning toward character-driven drama, serialized storytelling, or episodic humor?  \n- **Tone**: Do you want a dark, gritty series, a lighthearted comedy, or something genre-blending?  \n- **Theme**: Are you exploring social issues, personal transformation, or high-concept sci-fi?  \n\nLet me know your focus, and I\u2019ll help you build a compelling project list or refine your ideas!"
+        }
+    ],
+    "characters": [
+        {
+            "name": "Zoe",
+            "description": ""
+        },
+        {
+            "name": "Hiro",
+            "description": ""
+        },
+        {
+            "name": "Massimo",
+            "description": ""
+        }
+    ],
+    "character_relationships": [
+        {
+            "source": "Zoe",
+            "relationship": "Family",
+            "target": "Hiro"
+        },
+        {
+            "source": "Zoe",
+            "relationship": "Manages",
+            "target": "Massimo"
+        }
+    ],
+    "locations": [
+        {
+            "name": "Trading Floor"
+        },
+        {
+            "name": "Bordeaux"
+        }
+    ],
+    "episodes": [
+        {
+            "title": "Pilot",
+            "logline": "",
+            "synopsis": "We meet Daphne in her Status Quo dead end job. \nDaphne siezes an opportunity to follow her dream. \nDaphne is introduced to GME and immediately is labelled an outisder.",
+            "status": "Outline",
+            "characters": [
+                "Hiro",
+                "Massimo",
+                "Zoe"
+            ],
+            "locations": [
+                "Trading Floor",
+                "Bordeaux"
+            ],
+            "scenes": [
+                {
+                    "number": 1,
+                    "heading": "INT GME TRADING FLOOR - DAY",
+                    "summary": "Zoe arrives for her first day at GME. \nNobody notices her because the trading floor is chaos. \nHiro watches silently from the mezzanine.",
+                    "characters": [
+                        "Hiro"
+                    ],
+                    "locations": [
+                        "Trading Floor"
+                    ]
+                },
+                {
+                    "number": 2,
+                    "heading": "INT. ZOE'S DESK - CONTINUOUS",
+                    "summary": "Massimo takes Zoe to her desk. \nThe phone rings. Zoe jumps to answer. She is confident and cool. \nShe transfers the call to Sales. \nMassimo is impressed.",
+                    "characters": [
+                        "Massimo"
+                    ],
+                    "locations": [
+                        "Bordeaux"
+                    ]
+                },
+                {
+                    "number": 3,
+                    "heading": "",
+                    "summary": "",
+                    "characters": [],
+                    "locations": []
+                },
+                {
+                    "number": 4,
+                    "heading": "",
+                    "summary": "",
+                    "characters": [],
+                    "locations": []
+                }
+            ]
+        },
+        {
+            "title": "Episode 2",
+            "logline": "",
+            "synopsis": "",
+            "status": "Outline",
+            "characters": [],
+            "locations": [],
+            "scenes": []
+        },
+        {
+            "title": "Test Episode",
+            "logline": "",
+            "synopsis": "",
+            "status": "Outline",
+            "characters": [
+                "Zoe"
+            ],
+            "locations": [],
+            "scenes": [
+                {
+                    "number": 1,
+                    "heading": "",
+                    "summary": "",
+                    "characters": [
+                        "Zoe"
+                    ],
+                    "locations": []
+                }
+            ]
+        }
+    ],
+    "notes": [
+        {
+            "title": "Episode length",
+            "target_type": "Project",
+            "target_id": "Episode Demo",
+            "content": "Each episode should be 60 minutes in length.",
+            "created": "2026-08-01T17:15:24",
+            "modified": "2026-08-01T17:15:24"
+        },
+        {
+            "title": "Test Note",
+            "target_type": "Project",
+            "target_id": "Episode Demo",
+            "content": "SOme notes around this project, need to delete this later.",
+            "created": "2026-08-01T17:36:29",
+            "modified": "2026-08-01T17:36:29"
+        },
+        {
+            "title": "Motivation",
+            "target_type": "Project",
+            "target_id": "Episode Demo",
+            "content": "Zoe wants to be respected by people. And also wants a child with Hiro.",
+            "created": "2026-08-01T17:45:58",
+            "modified": "2026-08-01T17:45:58"
+        },
+        {
+            "title": "Motivation",
+            "target_type": "Character",
+            "target_id": "Hiro",
+            "content": "Hiro wants to be respected by his family as a businessman.",
+            "created": "2026-08-01T17:47:27",
+            "modified": "2026-08-01T17:47:27"
+        },
+        {
+            "title": "Year this is happening in",
+            "target_type": "Project",
+            "target_id": "Episode Demo",
+            "content": "Before brexit, perhaps 2016",
+            "created": "2026-08-01T17:49:58",
+            "modified": "2026-08-01T17:49:58"
+        },
+        {
+            "title": "Massimo personality traits",
+            "target_type": "Character",
+            "target_id": "Massimo",
+            "content": "Massimo is empathetic, warm, genuine, emotional.",
+            "created": "2026-08-01T17:51:11",
+            "modified": "2026-08-01T17:51:11"
+        },
+        {
+            "title": "Main plotlines",
+            "target_type": "Episode",
+            "target_id": "Pilot",
+            "content": "1. Daphne securing a job - passing probation. \n2. Bordeaux La Place takeover\n3. Massimo promo",
+            "created": "2026-08-01T17:53:22",
+            "modified": "2026-08-01T17:53:22"
+        },
+        {
+            "title": "looks chaotic, everone's desks should be full of stuff - clealry they have their own desks, not hotdesking",
+            "target_type": "Location",
+            "target_id": "Trading Floor",
+            "content": "looks chaotic, everone's desks should be full of stuff - clealry they have their own desks, not hotdesking\nnote list",
+            "created": "2026-08-01T17:55:03",
+            "modified": "2026-08-01T17:55:03"
+        },
+        {
+            "title": "Zoe desk appearance",
+            "target_type": "Scene",
+            "target_id": "Pilot:2",
+            "content": "Zoe's desk should look insane, with lots of empty wine bottles on it.",
+            "created": "2026-08-01T18:03:07",
+            "modified": "2026-08-01T18:03:07"
+        },
+        {
+            "title": "Test Note",
+            "target_type": "Episode",
+            "target_id": "Test Episode",
+            "content": "THis is just a random text string, must be deleted later.",
+            "created": "2026-08-01T18:26:30",
+            "modified": "2026-08-01T18:26:30"
+        },
+        {
+            "title": "Strain",
+            "target_type": "Relationship",
+            "target_id": "Zoe|Family|Hiro",
+            "content": "Zoe wants kids but Hiro is gay",
+            "created": "2026-08-01T19:03:01",
+            "modified": "2026-08-01T19:03:01"
+        }
+    ]
+}

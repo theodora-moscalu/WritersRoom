@@ -1,0 +1,17 @@
+{
+    "title": "Base Commands Test",
+    "conversation_history": [],
+    "characters": [
+        {
+            "name": "Zoe"
+        }
+    ],
+    "locations": [
+        {
+            "name": "London"
+        },
+        {
+            "name": "Bordeaux"
+        }
+    ]
+}

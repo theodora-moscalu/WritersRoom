@@ -1,0 +1,13 @@
+{
+    "title": "Base Service Test",
+    "conversation_history": [],
+    "characters": [],
+    "locations": [
+        {
+            "name": "Bordeaux"
+        },
+        {
+            "name": "London"
+        }
+    ]
+}
