@@ -64,6 +64,51 @@ class KnowledgeSource:
             ],
         )
 
+    #
+    # Document methods
+    #
+
+    def add_document(
+        self,
+        document: Document,
+    ):
+        """Add a document."""
+
+        self.documents.append(document)
+
+    def find_document(
+        self,
+        name: str,
+    ):
+        """Find a document by name."""
+
+        for document in self.documents:
+            if (
+                document.name.lower()
+                == name.lower()
+            ):
+                return document
+
+        return None
+
+    def remove_document(
+        self,
+        name: str,
+    ):
+        """Remove a document."""
+
+        document = self.find_document(
+            name
+        )
+
+        if document is not None:
+            self.documents.remove(document)
+
+    def list_documents(self):
+        """Return all documents."""
+
+        return self.documents
+
     def __str__(self):
         return (
             f"{self.identity} - "

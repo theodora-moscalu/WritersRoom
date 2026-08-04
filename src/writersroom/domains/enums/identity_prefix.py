@@ -16,6 +16,6 @@ class IdentityPrefix(Enum):
     DOCUMENT = "DOC"
     PASSAGE = "PAS"
     CLAIM = "CL"
-    CITATION = "CIT"
+    PROVENANCE = "PV"
 
     WRITER_PROFILE = "WP"

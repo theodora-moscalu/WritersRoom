@@ -10,13 +10,13 @@ class Passage:
         self,
         identity: str,
         document_id: str,
-        title: str = "",
+        sequence: int,
         text: str = "",
         claims: list[Claim] | None = None,
     ):
         self.identity = identity
         self.document_id = document_id
-        self.title = title
+        self.sequence = sequence
         self.text = text
         self.claims = claims or []
 
@@ -26,7 +26,7 @@ class Passage:
         return {
             "identity": self.identity,
             "document_id": self.document_id,
-            "title": self.title,
+            "sequence": self.sequence,
             "text": self.text,
             "claims": [
                 claim.to_dict()
@@ -41,10 +41,7 @@ class Passage:
         return cls(
             identity=data["identity"],
             document_id=data["document_id"],
-            title=data.get(
-                "title",
-                "",
-            ),
+            sequence=data["sequence"],
             text=data.get(
                 "text",
                 "",
@@ -58,11 +55,47 @@ class Passage:
             ],
         )
 
-    def __str__(self):
-        if self.title:
-            return (
-                f"{self.identity} - "
-                f"{self.title}"
+    def add_claim(
+        self,
+        claim: Claim,
+    ):
+        """Add a claim."""
+
+        self.claims.append(claim)
+
+    def find_claim(
+        self,
+        identity: str,
+    ):
+        """Find a claim by identity."""
+
+        for claim in self.claims:
+            if claim.identity == identity:
+                return claim
+
+        return None
+
+    def remove_claim(
+        self,
+        identity: str,
+    ):
+        """Remove a claim."""
+
+        claim = self.find_claim(
+            identity
+        )
+
+        if claim is not None:
+            self.claims.remove(
+                claim
             )
 
-        return self.identity
+    def list_claims(self):
+        """Return all claims."""
+
+        return self.claims
+
+    def __str__(self):
+        return (
+            f"Passage {self.sequence}"
+        )

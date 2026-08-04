@@ -3,12 +3,23 @@ from writersroom.commands.character_commands import CharacterCommands
 from writersroom.commands.character_relationship_commands import (
     CharacterRelationshipCommands,
 )
+from writersroom.commands.claim_commands import (
+    ClaimCommands,
+)
+from writersroom.commands.document_commands import (
+    DocumentCommands,
+)
 from writersroom.commands.episode_commands import EpisodeCommands
 from writersroom.commands.knowledge_commands import (
     KnowledgeCommands,
 )
-from writersroom.commands.location_commands import LocationCommands
+from writersroom.commands.location_commands import (
+    LocationCommands,
+)
 from writersroom.commands.note_commands import NoteCommands
+from writersroom.commands.passage_commands import (
+    PassageCommands,
+)
 from writersroom.commands.router import CommandRouter
 from writersroom.domains.story.project import Project
 from writersroom.domains.workspace import Workspace
@@ -16,12 +27,23 @@ from writersroom.services.character_relationship_service import (
     CharacterRelationshipService,
 )
 from writersroom.services.character_service import CharacterService
+from writersroom.services.claim_service import (
+    ClaimService,
+)
+from writersroom.services.document_service import (
+    DocumentService,
+)
 from writersroom.services.episode_service import EpisodeService
 from writersroom.services.knowledge_source_service import (
     KnowledgeSourceService,
 )
-from writersroom.services.location_service import LocationService
+from writersroom.services.location_service import (
+    LocationService,
+)
 from writersroom.services.note_service import NoteService
+from writersroom.services.passage_service import (
+    PassageService,
+)
 
 
 class Application:
@@ -163,26 +185,44 @@ class Application:
             )
         )
 
+        self.document_service = (
+            DocumentService(
+                self.workspace
+            )
+        )
+
+        self.passage_service = (
+            PassageService(
+                self.workspace
+            )
+        )
+
+        self.claim_service = (
+            ClaimService(
+                self.workspace
+            )
+        )
+
         self.router = CommandRouter()
 
         self.router.register(
             "character",
             CharacterCommands(
-                self.character_service
+                self.character_service,
             ),
         )
 
         self.router.register(
             "location",
             LocationCommands(
-                self.location_service
+                self.location_service,
             ),
         )
 
         self.router.register(
             "episode",
             EpisodeCommands(
-                self.episode_service
+                self.episode_service,
             ),
         )
 
@@ -204,6 +244,27 @@ class Application:
             "knowledge",
             KnowledgeCommands(
                 self.knowledge_source_service,
+            ),
+        )
+
+        self.router.register(
+            "document",
+            DocumentCommands(
+                self.document_service,
+            ),
+        )
+
+        self.router.register(
+            "passage",
+            PassageCommands(
+                self.passage_service,
+            ),
+        )
+
+        self.router.register(
+            "claim",
+            ClaimCommands(
+                self.claim_service,
             ),
         )
 
@@ -243,8 +304,20 @@ class Application:
         print("note show <title>            Show a note")
         print("knowledge add                Add a knowledge source")
         print("knowledge list               List knowledge sources")
-        print("knowledge show <name>        Show a knowledge source")
-        print("knowledge delete <name>      Delete a knowledge source")
+        print("knowledge show               Show a knowledge source")
+        print("knowledge delete             Delete a knowledge source")
+        print("document add                 Add a document")
+        print("document list                List documents")
+        print("document show                Show a document")
+        print("document delete              Delete a document")
+        print("passage add                  Add a passage")
+        print("passage list                 List passages")
+        print("passage show                 Show a passage")
+        print("passage delete               Delete a passage")
+        print("claim add                    Add a claim")
+        print("claim list                   List claims")
+        print("claim show                   Show a claim")
+        print("claim delete                 Delete a claim")
         print("quit                         Exit WritersRoom")
         print()
 

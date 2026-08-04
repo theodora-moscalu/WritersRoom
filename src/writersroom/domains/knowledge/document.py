@@ -61,6 +61,69 @@ class Document:
             ],
         )
 
+    def next_passage_sequence(self) -> int:
+        """Return the next available passage sequence."""
+
+        if not self.passages:
+            return 1
+
+        return (
+            max(
+                passage.sequence
+                for passage in self.passages
+            )
+            + 1
+        )
+
+    #
+    # Passage methods
+    #
+
+    def add_passage(
+        self,
+        passage: Passage,
+    ):
+        """Add a passage."""
+
+        self.passages.append(
+            passage
+        )
+
+    def find_passage(
+        self,
+        sequence: int,
+    ):
+        """Find a passage by sequence."""
+
+        for passage in self.passages:
+            if (
+                passage.sequence
+                == sequence
+            ):
+                return passage
+
+        return None
+
+    def remove_passage(
+        self,
+        sequence: int,
+    ):
+        """Remove a passage."""
+
+        passage = self.find_passage(
+            sequence
+        )
+
+        if passage is not None:
+            self.passages.remove(
+                passage
+            )
+
+    def list_passages(self):
+        """Return all passages."""
+
+        return self.passages
+
     def __str__(self):
         return (
             f"{self.identity} - "
