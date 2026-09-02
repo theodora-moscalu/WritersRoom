@@ -17,3 +17,13 @@ class SourceUnit:
         self.text = text
         self.unit_type = unit_type
         self.heading = heading
+
+    @property
+    def passage_sequences(
+        self,
+    ) -> list[int]:
+        """Return supporting passage sequences."""
+
+        return [
+            self.sequence
+        ]

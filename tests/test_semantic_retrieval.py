@@ -10,23 +10,11 @@ from writersroom.domains.enums.knowledge_source_type import (
 from writersroom.domains.workspace import (
     Workspace,
 )
-from writersroom.retrieval.claim_repository import (
-    ClaimRepository,
-)
-from writersroom.retrieval.embedding_retriever import (
-    EmbeddingRetriever,
-)
-from writersroom.retrieval.in_memory_vector_store import (
-    InMemoryVectorStore,
-)
-from writersroom.retrieval.knowledge_indexer import (
-    KnowledgeIndexer,
-)
 from writersroom.retrieval.knowledge_query import (
     KnowledgeQuery,
 )
-from writersroom.retrieval.ollama_embedding_provider import (
-    OllamaEmbeddingProvider,
+from writersroom.retrieval.retrieval_container import (
+    RetrievalContainer,
 )
 from writersroom.retrieval.retrieval_result import (
     RetrievalResult,
@@ -86,36 +74,21 @@ def main():
         knowledge_domain=KnowledgeDomain.CONFLICT,
     )
 
-    repository = (
-        ClaimRepository(
+    retrieval = (
+        RetrievalContainer(
             workspace
         )
     )
 
-    provider = (
-        OllamaEmbeddingProvider()
-    )
+    retrieval.indexer.index()
 
-    store = (
-        InMemoryVectorStore()
-    )
-
-    KnowledgeIndexer(
-        repository,
-        provider,
-        store,
-    ).index()
-
-    retriever = (
-        EmbeddingRetriever(
-            store,
-            provider,
-        )
-    )
-
-    results = retriever.retrieve(
-        KnowledgeQuery(
-            text="How do I create tension?"
+    results = (
+        retrieval.search_service.search(
+            KnowledgeQuery(
+                text=(
+                    "How do I create tension?"
+                )
+            )
         )
     )
 

@@ -45,6 +45,18 @@ from writersroom.services.passage_service import (
     PassageService,
 )
 
+from writersroom.services.import_service import (
+    ImportService,
+)
+
+from writersroom.retrieval.retrieval_container import (
+    RetrievalContainer,
+)
+
+from writersroom.services.knowledge_pipeline_service import (
+    KnowledgePipelineService,
+)
+
 
 class Application:
     """Main application for WritersRoom."""
@@ -203,6 +215,24 @@ class Application:
             )
         )
 
+        self.import_service = (
+            ImportService(
+                self.workspace
+            )
+        )
+
+        self.knowledge_pipeline_service = (
+            KnowledgePipelineService(
+                self.workspace
+                )
+        )
+        
+        self.retrieval = (
+            RetrievalContainer(
+                self.workspace
+            )
+        )
+
         self.router = CommandRouter()
 
         self.router.register(
@@ -267,6 +297,7 @@ class Application:
                 self.claim_service,
             ),
         )
+
 
     def _switch_project(self, project: Project):
         """Switch to a different project."""

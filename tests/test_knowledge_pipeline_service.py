@@ -28,6 +28,9 @@ from writersroom.services.knowledge_source_service import (
 from writersroom.services.passage_service import (
     PassageService,
 )
+from writersroom.review.review_result import (
+    ReviewResult,
+)
 
 
 def main():
@@ -112,9 +115,45 @@ def main():
         ),
     )
 
+    assert isinstance(
+        result,
+        ReviewResult,
+    )
+
     assert (
-        len(result.accepted_items)
+        len(result.items)
         >= 1
+    )
+
+    item = result.items[0]
+
+    assert item.claim is not None
+
+    assert (
+        item.claim.text
+        != ""
+    )
+
+    assert (
+        item.claim.explanation
+        != ""
+    )
+
+    assert (
+        item.claim.knowledge_level
+        is not None
+    )
+
+    assert (
+        item.claim.knowledge_domain
+        is not None
+    )
+
+    assert (
+        len(
+            item.claim.provenance
+        )
+        == 1
     )
 
     claims = (
@@ -129,58 +168,38 @@ def main():
 
     assert (
         len(claims.data)
-        >= 1
-    )
-
-    claim = claims.data[0]
-
-    assert (
-        claim.text
-        != ""
-    )
-
-    assert (
-        claim.explanation
-        != ""
-    )
-
-    assert (
-        claim.knowledge_level
-        is not None
-    )
-
-    assert (
-        claim.knowledge_domain
-        is not None
-    )
-
-    assert (
-        len(
-            claim.provenance
-        )
-        == 1
+        == 0
     )
 
     print()
 
     print(
-        "Stored claim:"
+        "Review candidates:"
     )
 
     print()
 
     print(
-        f"Level: {claim.knowledge_level}"
-    )
-
-    print(
-        f"Domain: {claim.knowledge_domain}"
+        f"Candidates: "
+        f"{len(result.items)}"
     )
 
     print()
 
     print(
-        claim.text
+        f"Level: "
+        f"{item.claim.knowledge_level}"
+    )
+
+    print(
+        f"Domain: "
+        f"{item.claim.knowledge_domain}"
+    )
+
+    print()
+
+    print(
+        item.claim.text
     )
 
     print()

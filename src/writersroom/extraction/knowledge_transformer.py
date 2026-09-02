@@ -4,11 +4,11 @@ from writersroom.extraction.extracted_claim import (
 from writersroom.extraction.extracted_provenance import (
     ExtractedProvenance,
 )
+from writersroom.extraction.extraction_unit import (
+    ExtractionUnit,
+)
 from writersroom.extraction.knowledge_record import (
     KnowledgeRecord,
-)
-from writersroom.processors.source_unit import (
-    SourceUnit,
 )
 
 
@@ -18,7 +18,7 @@ class KnowledgeTransformer:
     def transform(
         self,
         record: KnowledgeRecord,
-        unit: SourceUnit,
+        unit: ExtractionUnit,
     ) -> ExtractedClaim:
         """Transform a knowledge record into an extracted claim."""
 
@@ -33,10 +33,11 @@ class KnowledgeTransformer:
             ),
             provenance=[
                 ExtractedProvenance(
-                    passage_sequence=(
-                        unit.sequence
-                    ),
+                    passage_sequence=sequence,
                     confidence=1.0,
+                )
+                for sequence in (
+                    unit.passage_sequences
                 )
             ],
         )

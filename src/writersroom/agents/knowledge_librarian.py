@@ -1,6 +1,12 @@
 from writersroom.agents.base_agent import (
     Agent,
 )
+from writersroom.extraction.extraction_batch import (
+    ExtractionBatch,
+)
+from writersroom.extraction.extraction_unit import (
+    ExtractionUnit,
+)
 from writersroom.extraction.knowledge_record import (
     KnowledgeRecord,
 )
@@ -9,9 +15,6 @@ from writersroom.extraction.normalizers.knowledge_normalizer import (
 )
 from writersroom.extraction.parsers.knowledge_parser import (
     KnowledgeParser,
-)
-from writersroom.processors.source_unit import (
-    SourceUnit,
 )
 
 
@@ -36,9 +39,46 @@ class KnowledgeLibrarian(Agent):
 
     def analyse(
         self,
-        unit: SourceUnit,
+        unit: ExtractionUnit,
     ) -> list[KnowledgeRecord]:
-        """Analyse a source unit."""
+        """Analyse a single extraction unit."""
+
+        return self.analyse_batch(
+            ExtractionBatch(
+                [unit]
+            )
+        )
+
+    def analyse_batch(
+        self,
+        batch: ExtractionBatch,
+    ) -> list[KnowledgeRecord]:
+        """Analyse a batch of extraction units."""
+
+        text = []
+
+        for index, unit in enumerate(
+            batch,
+            start=1,
+        ):
+
+            text.append(
+                f"===== SOURCE {index} ====="
+            )
+
+            if unit.heading:
+
+                text.append(
+                    unit.heading
+                )
+
+            text.append("")
+
+            text.append(
+                unit.text
+            )
+
+            text.append("")
 
         messages = [
             {
@@ -47,7 +87,7 @@ class KnowledgeLibrarian(Agent):
             },
             {
                 "role": "user",
-                "content": unit.text,
+                "content": "\n".join(text),
             },
         ]
 

@@ -1,11 +1,11 @@
 from abc import ABC
 from abc import abstractmethod
 
-from writersroom.domains.knowledge.claim import (
-    Claim,
-)
 from writersroom.retrieval.knowledge_query import (
     KnowledgeQuery,
+)
+from writersroom.retrieval.retrieval_result import (
+    RetrievalResult,
 )
 
 
@@ -16,7 +16,9 @@ class BaseRetriever(ABC):
     def retrieve(
         self,
         query: KnowledgeQuery,
-    ) -> list[Claim]:
+    ) -> list[
+        RetrievalResult
+    ]:
         """Retrieve relevant claims."""
 
         raise NotImplementedError

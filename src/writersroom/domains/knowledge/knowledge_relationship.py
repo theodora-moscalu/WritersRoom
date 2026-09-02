@@ -1,0 +1,32 @@
+from writersroom.domains.enums.knowledge_relationship_type import (
+    KnowledgeRelationshipType,
+)
+
+
+class KnowledgeRelationship:
+    """Represents a relationship between two knowledge claims."""
+
+    def __init__(
+        self,
+        source_claim_id: str,
+        target_claim_id: str,
+        relationship_type: (
+            KnowledgeRelationshipType
+        ),
+        confidence: float = 1.0,
+    ):
+        self.source_claim_id = (
+            source_claim_id
+        )
+
+        self.target_claim_id = (
+            target_claim_id
+        )
+
+        self.relationship_type = (
+            relationship_type
+        )
+
+        self.confidence = (
+            confidence
+        )

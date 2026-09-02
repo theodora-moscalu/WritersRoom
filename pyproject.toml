@@ -12,6 +12,7 @@ dependencies = [
     "ollama>=0.6.0",
     "pypdf>=6.0.0",
     "python-docx>=1.2.0",
+    "streamlit>=1.60.0",
 ]
 
 [tool.setuptools]

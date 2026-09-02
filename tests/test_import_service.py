@@ -48,9 +48,13 @@ def main():
         )
     )
 
-    result = import_service.import_document(
-        "Books",
-        str(test_file),
+    result = (
+        import_service.import_document(
+        knowledge_source_name="Books",
+        knowledge_source_type=KnowledgeSourceType.BOOK,
+        path=str(test_file),
+        document_name="Test Story",
+        )
     )
 
     assert result.success
@@ -64,7 +68,7 @@ def main():
     assert source is not None
 
     document = source.find_document(
-        "story"
+        "Test Story"
     )
 
     assert document is not None

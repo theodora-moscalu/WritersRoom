@@ -1,49 +1,74 @@
 from writersroom.agents.knowledge_librarian import (
     KnowledgeLibrarian,
 )
+from writersroom.extraction.extraction_batch import (
+    ExtractionBatch,
+)
 from writersroom.extraction.extraction_result import (
     ExtractionResult,
 )
+from writersroom.extraction.extraction_unit import (
+    ExtractionUnit,
+)
 from writersroom.extraction.knowledge_transformer import (
     KnowledgeTransformer,
-)
-from writersroom.processors.source_unit import (
-    SourceUnit,
 )
 
 
 class ExtractionService:
     """Coordinates knowledge extraction."""
 
-    def __init__(self):
+    def __init__(
+        self,
+        librarian: KnowledgeLibrarian | None = None,
+        transformer: KnowledgeTransformer | None = None,
+    ):
 
         self.librarian = (
-            KnowledgeLibrarian()
+            librarian
+            or KnowledgeLibrarian()
         )
 
         self.transformer = (
-            KnowledgeTransformer()
+            transformer
+            or KnowledgeTransformer()
         )
 
     def extract(
         self,
-        unit: SourceUnit,
+        unit: ExtractionUnit,
     ) -> ExtractionResult:
-        """Extract knowledge from a source unit."""
+        """Extract knowledge from one unit."""
 
-        records = (
-            self.librarian.analyse(
-                unit
+        return self.extract_batch(
+            ExtractionBatch(
+                [unit]
             )
         )
 
-        claims = [
-            self.transformer.transform(
-                record,
-                unit,
+    def extract_batch(
+        self,
+        batch: ExtractionBatch,
+    ) -> ExtractionResult:
+        """Extract knowledge from a batch."""
+
+        claims = []
+
+        for unit in batch:
+
+            records = (
+                self.librarian.analyse(
+                    unit
+                )
             )
-            for record in records
-        ]
+
+            claims.extend(
+                self.transformer.transform(
+                    record,
+                    unit,
+                )
+                for record in records
+            )
 
         return ExtractionResult(
             claims=claims,

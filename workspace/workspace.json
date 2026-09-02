@@ -1,10 +1,126 @@
 {
     "projects": [],
     "knowledge_library": {
-        "knowledge_sources": []
+        "knowledge_sources": [
+            {
+                "identity": "KS000001",
+                "name": "Story",
+                "source_type": "Book",
+                "author": "",
+                "description": "",
+                "documents": [
+                    {
+                        "identity": "DOC000001",
+                        "knowledge_source_id": "KS000001",
+                        "name": "Story Guide",
+                        "description": "",
+                        "passages": [
+                            {
+                                "identity": "PAS000001",
+                                "document_id": "DOC000001",
+                                "sequence": 1,
+                                "text": "Conflict creates drama.",
+                                "claims": []
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "identity": "KS000002",
+                "name": "Use Vivid Verbs (Craft)",
+                "source_type": "Book",
+                "author": "",
+                "description": "",
+                "documents": [
+                    {
+                        "identity": "DOC000002",
+                        "knowledge_source_id": "KS000002",
+                        "name": "Use Vivid Verbs (Craft)",
+                        "description": "tmppm9y9sul.pdf",
+                        "passages": [
+                            {
+                                "identity": "PAS000002",
+                                "document_id": "DOC000002",
+                                "sequence": 1,
+                                "text": "Writing the Scene Craft: Use Vivid Verbs When you're revising your work and improving your first drafts and applying a lens of editorial finesse to your work, we advocate using seven stylistic guidelines that will really focus your screenwriting and bring out the best narrative focus in the story you're trying to tell. \nThe first of these seven guidelines is use vivid verbs over adverbs and adjectives. Now, this is an axiom of great writing in general, but when you use verbs, you show action on a literal level of the character doing something. And often, that characterizes what you're trying to say in a more vibrant way that reads better than if you describe that action in a more passive way. \n\"Amy walks confidently across the room.\" \n\"Confidently\" characterizes the word \"walks\" in a very weak, lame way that doesn't read very well. \nIf we reframe that sentence as, \"Amy struts across the room,\" it reads better. It conveys the exact same meaning in a more specific and vivid way. \"Amy struts across the room\" gives us a sense of active character, \"Amy struts\" as opposed to \"Amy walks confidently.\" \nAlso just eradicating the use of \"is I-N-G\" word. Having a sentence like \"Amy is laughing loudly\" is so much weaker than \"Amy cackles.\" Using active, vivid verbs so often communicates action and autonomy, and it reads better on the page.",
+                                "claims": [
+                                    {
+                                        "identity": "CL000001",
+                                        "passage_id": "PAS000002",
+                                        "text": "Use active verbs to convey character agency and action.",
+                                        "knowledge_level": "technique",
+                                        "knowledge_domain": "writing",
+                                        "explanation": "Replacing adverbs with vivid verbs creates stronger, more dynamic descriptions by directly showing character behavior rather than relying on modifiers to imply action.",
+                                        "provenance": [
+                                            {
+                                                "identity": "PV000001",
+                                                "claim_id": "CL000001",
+                                                "source_document_id": "DOC000002",
+                                                "passage_id": "PAS000002",
+                                                "confidence": 1.0,
+                                                "reviewed": true
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "identity": "CL000002",
+                                        "passage_id": "PAS000002",
+                                        "text": "Avoid passive \"-ing\" constructions for stronger narrative focus.",
+                                        "knowledge_level": "technique",
+                                        "knowledge_domain": "writing",
+                                        "explanation": "Active verbs like \"cackles\" replace weaker \"-ing\" phrases like \"is laughing,\" creating more immediate and impactful descriptions that emphasize character autonomy.",
+                                        "provenance": [
+                                            {
+                                                "identity": "PV000002",
+                                                "claim_id": "CL000002",
+                                                "source_document_id": "DOC000002",
+                                                "passage_id": "PAS000002",
+                                                "confidence": 1.0,
+                                                "reviewed": true
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "identity": "PAS000003",
+                                "document_id": "DOC000002",
+                                "sequence": 2,
+                                "text": "There are some studies that show that readers get a hit of dopamine when they read verbs. You want your readers to feel pleasure reading great writing. You want your screenplays to read really well. So, eliminating adverbs and adjectives as the crutch for characterizing your characters in your story world, and instead use vivid, vibrant, active verbs to show what your characters are doing is so often going to get you in a better place in your writing.",
+                                "claims": [
+                                    {
+                                        "identity": "CL000003",
+                                        "passage_id": "PAS000003",
+                                        "text": "Use active verbs to convey character actions instead of relying on adjectives or adverbs.",
+                                        "knowledge_level": "technique",
+                                        "knowledge_domain": "writing",
+                                        "explanation": "This approach leverages the neurological response to verbs, enhancing reader engagement by prioritizing vivid, dynamic action over passive descriptors. The source emphasizes that active verbs create stronger, more immersive characterizations without relying on adjectival crutches.",
+                                        "provenance": [
+                                            {
+                                                "identity": "PV000003",
+                                                "claim_id": "CL000003",
+                                                "source_document_id": "DOC000002",
+                                                "passage_id": "PAS000003",
+                                                "confidence": 1.0,
+                                                "reviewed": true
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
     },
     "personal_knowledge": [],
     "identity_counters": {
-        "KS": 1
+        "KS": 2,
+        "DOC": 2,
+        "PAS": 3,
+        "CL": 3,
+        "PV": 3
     }
 }

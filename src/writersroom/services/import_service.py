@@ -1,6 +1,9 @@
 from pathlib import Path
 
 from writersroom.common.result import Result
+from writersroom.domains.enums.knowledge_source_type import (
+    KnowledgeSourceType,
+)
 from writersroom.importers.importer_factory import (
     ImporterFactory,
 )
@@ -10,10 +13,15 @@ from writersroom.processors.processor_factory import (
 from writersroom.services.document_service import (
     DocumentService,
 )
+from writersroom.services.knowledge_source_service import (
+    KnowledgeSourceService,
+)
 from writersroom.services.passage_service import (
     PassageService,
 )
-
+from writersroom.services.import_result import (
+    ImportResult,
+)
 
 class ImportService:
     """Imports documents into the knowledge library."""
@@ -23,6 +31,12 @@ class ImportService:
         workspace,
     ):
         self.workspace = workspace
+
+        self.knowledge_source_service = (
+            KnowledgeSourceService(
+                workspace
+            )
+        )
 
         self.document_service = (
             DocumentService(
@@ -39,9 +53,28 @@ class ImportService:
     def import_document(
         self,
         knowledge_source_name: str,
+        knowledge_source_type: KnowledgeSourceType,
         path: str,
+        document_name: str | None = None,
     ) -> Result:
         """Import a document."""
+
+        if (
+            self.workspace.find_knowledge_source_by_name(
+                knowledge_source_name
+            )
+            is None
+        ):
+
+            result = (
+                self.knowledge_source_service.add_source(
+                    name=knowledge_source_name,
+                    source_type=knowledge_source_type,
+                )
+            )
+
+            if not result.success:
+                return result
 
         importer = (
             ImporterFactory.create(
@@ -61,9 +94,8 @@ class ImportService:
             )
         )
 
-        document_name = (
-            Path(path).stem
-        )
+        if document_name is None:
+            document_name = Path(path).stem
 
         result = (
             self.document_service.add_document(
@@ -84,17 +116,20 @@ class ImportService:
             )
         )
 
-        for passage in (
-            processed.passages
+        for source_unit in (
+            processed.source_units
         ):
 
             self.passage_service.add_passage(
                 knowledge_source_name,
                 document.name,
-                passage.text,
+                source_unit.text,
             )
 
         return Result.ok(
             f"Imported '{document_name}'.",
-            data=document,
+            data=ImportResult(
+                document=document,
+                processed_document=processed,
+            ),
         )
