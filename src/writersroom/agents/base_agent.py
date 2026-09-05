@@ -1,4 +1,5 @@
 from abc import ABC
+from pathlib import Path
 
 from writersroom.llm.client import OllamaClient
 
@@ -10,18 +11,30 @@ class Agent(ABC):
         self,
         name: str,
         prompt_file: str,
+        llm=None,
     ):
         self.name = name
 
         self.llm = (
-            OllamaClient()
+            llm
+            or OllamaClient()
         )
 
         self.system_prompt = (
-            self.llm.load_prompt(
+            self.load_prompt(
                 prompt_file
             )
         )
+
+    @staticmethod
+    def load_prompt(filename: str) -> str:
+        prompt_path = (
+            Path(__file__).parent.parent
+            / "prompts"
+            / filename
+        )
+
+        return prompt_path.read_text(encoding="utf-8")
 
     def ask_llm(
         self,

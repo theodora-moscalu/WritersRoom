@@ -9,9 +9,11 @@ description = "WritersRoom"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "anthropic>=1.4.0",
     "ollama>=0.6.0",
     "pypdf>=6.0.0",
     "python-docx>=1.2.0",
+    "python-dotenv>=1.2.3",
     "streamlit>=1.60.0",
 ]
 

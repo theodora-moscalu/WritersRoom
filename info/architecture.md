@@ -74,12 +74,17 @@ flowchart TD
     APP --> RC
 
     subgraph LLM["LLM Layer"]
-        OC["OllamaClient\n(base_agent.Agent)"]
+        FACTORY["llm_factory\n(WRITERSROOM_EXTRACTION_PROVIDER)"]
+        AC["AnthropicClient\n(claude-sonnet-5)"]
+        OC["OllamaClient\n(base_agent.Agent default)"]
     end
 
-    LIB --> OC
+    LIB --> FACTORY
+    FACTORY -->|default| AC
+    FACTORY -.provider=ollama.-> OC
     RAN --> OC
     EMB --> OC
+    AC -->|Messages API| ANTHROPIC[("Anthropic API")]
     OC -->|local requests| OLLAMA[("Ollama server\n(qwen3:8b, embeddings)")]
 
     subgraph Persistence["Persistence"]

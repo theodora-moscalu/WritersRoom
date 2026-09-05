@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from ollama import chat
 
 
@@ -18,13 +16,3 @@ class OllamaClient:
         )
 
         return response.message.content
-
-    @staticmethod
-    def load_prompt(filename: str) -> str:
-        prompt_path = (
-            Path(__file__).parent.parent
-            / "prompts"
-            / filename
-        )
-
-        return prompt_path.read_text(encoding="utf-8")

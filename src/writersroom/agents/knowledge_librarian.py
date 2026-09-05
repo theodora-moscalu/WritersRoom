@@ -1,6 +1,9 @@
 from writersroom.agents.base_agent import (
     Agent,
 )
+from writersroom.llm.llm_factory import (
+    create_extraction_llm,
+)
 from writersroom.extraction.extraction_batch import (
     ExtractionBatch,
 )
@@ -27,6 +30,7 @@ class KnowledgeLibrarian(Agent):
             prompt_file=(
                 "knowledge_librarian.txt"
             ),
+            llm=create_extraction_llm(),
         )
 
         self.normalizer = (
