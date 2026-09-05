@@ -120,7 +120,10 @@ the end-user product.
   real pipeline, so LLM-touching tests need `ANTHROPIC_API_KEY` (or the Ollama fallback) and a
   running Ollama for embeddings.
 - `tests/support.py` — `knowledge_repository()` returns a `KnowledgeRepository` over an
-  in-memory SQLite DB; knowledge-library tests use it instead of building a `Workspace`.
+  in-memory SQLite DB; `limit_source_units()` caps the end-to-end PDF tests to the first 3
+  scenes (one LLM call each) — `WRITERSROOM_E2E_SCENE_LIMIT=0` runs the whole document.
+- Routine runs: `WRITERSROOM_EXTRACTION_PROVIDER=ollama WRITERSROOM_SHOWRUNNER_PROVIDER=ollama`
+  keeps the LLM-touching tests off the paid API.
 
 ## Commands
 

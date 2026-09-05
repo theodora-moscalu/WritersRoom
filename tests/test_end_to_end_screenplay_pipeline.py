@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from support import knowledge_repository
+from support import limit_source_units
 
 from writersroom.domains.enums.knowledge_source_type import (
     KnowledgeSourceType,
@@ -96,14 +97,14 @@ def main():
         )
     )
 
-    processed = (
+    processed = limit_source_units(
         processor.process(
             imported.text
         )
     )
 
     print(
-        f"✓ Created {len(processed.source_units)} "
+        f"✓ Extracting from {len(processed.source_units)} "
         "SourceUnits"
     )
 
