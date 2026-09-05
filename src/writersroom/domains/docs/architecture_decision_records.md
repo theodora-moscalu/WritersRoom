@@ -260,6 +260,145 @@ The architecture should reflect that.
 
 ---
 
+# ADR-012 — Entities vs Value Objects
+
+## Decision
+
+Not every domain class is an entity.
+
+Entities are things that exist in the story world or project model — Scene, Character, Episode.
+
+Value objects are relationships, notes, enums, results and provenance.
+
+## Examples
+
+`Scene` is an entity.
+
+`Project` is arguably not an entity.
+
+A `Note` is metadata attached to another entity, not an entity in the same sense.
+
+## Consequences
+
+- A class inherits `Entity` only when it has a genuine stable identity of its own.
+- Value objects are compared by value, not by identity.
+
+---
+
+# ADR-013 — Ownership vs Peer References
+
+## Decision
+
+Children are owned by their parent.
+
+Relationships between peers are expressed with identities, never object references.
+
+## Rationale
+
+Ownership and reference must never be confused (see ADR-003).
+
+Object references between peers create cycles and ambiguous ownership.
+
+---
+
+# ADR-014 — A Claim Knows Where to Find Its Evidence
+
+## Decision
+
+A claim does not know why it is true.
+
+It knows where the evidence is: source document, passage, confidence, reviewed status.
+
+## Rationale
+
+Justification is reasoning, not knowledge.
+
+Keeping evidence as provenance lets reasoning re-evaluate a claim without rewriting it.
+
+---
+
+# ADR-015 — Knowledge Tiers
+
+## Decision
+
+Knowledge is organised into three tiers by scope.
+
+- **Project knowledge** (one workspace): Story Bible, Characters, Relationships graph, Episodes, Scenes, Project Notes.
+- **General storytelling knowledge** (shared across workspaces): screenwriting books, screenplays, writing notes, interviews, personal writing style, research.
+- **External / world knowledge** (one workspace): domain research such as wine, history, geography.
+
+## Rationale
+
+General storytelling knowledge is reusable across every project (see ADR-004).
+
+Project and world knowledge are scoped to a single workspace and must not leak between projects.
+
+---
+
+# ADR-016 — Ingestion Processes SourceUnits
+
+## Decision
+
+The ingestion pipeline processes `SourceUnit`s, not passages.
+
+## Rationale
+
+A `SourceUnit` is the meaningful unit of extraction (a scene, a paragraph).
+
+Passages are a storage detail beneath it.
+
+---
+
+# ADR-017 — Never Trust LLM Output
+
+## Decision
+
+Never trust LLM output. Validate everything.
+
+## Consequences
+
+- Extraction output is parsed and every field is checked before it becomes a claim.
+- Malformed or incomplete records are dropped, never guessed or repaired silently.
+- Enum values are normalised against a fixed vocabulary.
+
+---
+
+# ADR-018 — Retrieval Engine
+
+## Decision
+
+The Knowledge Library owns retrieval.
+
+Retrieval is delegated to interchangeable retrieval strategies.
+
+The first production implementation uses embeddings rather than keyword search.
+
+## Rationale
+
+WritersRoom stores semantic knowledge, not documents.
+
+Embeddings naturally retrieve semantically related principles.
+
+A retrieval abstraction avoids rewriting the Knowledge Library when graph retrieval is added later.
+
+---
+
+# ADR-019 — ClaimRepository
+
+## Decision
+
+The `ClaimRepository` provides read access to accepted knowledge.
+
+It knows how claims are stored. Nobody else does.
+
+## Rationale
+
+Storage is an implementation detail.
+
+Isolating it behind a repository keeps the rest of the system independent of persistence.
+
+---
+
 # Before Implementing Any Feature
 
 Every feature should be checked against these questions.
