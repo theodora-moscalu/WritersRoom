@@ -1,4 +1,13 @@
 from writersroom.agents.showrunner import Showrunner
+from writersroom.agents.knowledge_context import (
+    KnowledgeContextBuilder,
+)
+from writersroom.agents.project_context import (
+    ProjectContextBuilder,
+)
+from writersroom.llm.llm_factory import (
+    create_showrunner_llm,
+)
 from writersroom.commands.character_commands import CharacterCommands
 from writersroom.commands.character_relationship_commands import (
     CharacterRelationshipCommands,
@@ -49,6 +58,16 @@ from writersroom.services.import_service import (
     ImportService,
 )
 
+from writersroom.database.database import (
+    Database,
+)
+from writersroom.database.knowledge_repository import (
+    KnowledgeRepository,
+)
+from writersroom.database.workspace_import import (
+    WorkspaceJsonImport,
+)
+
 from writersroom.retrieval.retrieval_container import (
     RetrievalContainer,
 )
@@ -57,6 +76,8 @@ from writersroom.services.knowledge_pipeline_service import (
     KnowledgePipelineService,
 )
 
+from dotenv import load_dotenv
+load_dotenv()
 
 class Application:
     """Main application for WritersRoom."""
@@ -64,12 +85,22 @@ class Application:
     def __init__(self):
         self.workspace = Workspace.load()
 
+        self.database = Database()
+
+        self.knowledge_repository = (
+            KnowledgeRepository(
+                self.database
+            )
+        )
+
+        WorkspaceJsonImport(
+            self.database
+        ).run_if_needed()
+
         self.project = Project.load("Untitled Project")
 
         if self.project is None:
             self.project = Project("Untitled Project")
-
-        self.showrunner = Showrunner(self.project)
 
         self._build_application()
 
@@ -193,44 +224,68 @@ class Application:
 
         self.knowledge_source_service = (
             KnowledgeSourceService(
-                self.workspace
+                self.knowledge_repository
             )
         )
 
         self.document_service = (
             DocumentService(
-                self.workspace
+                self.knowledge_repository
             )
         )
 
         self.passage_service = (
             PassageService(
-                self.workspace
+                self.knowledge_repository
             )
         )
 
         self.claim_service = (
             ClaimService(
-                self.workspace
+                self.knowledge_repository
             )
         )
 
         self.import_service = (
             ImportService(
-                self.workspace
+                self.knowledge_repository
             )
         )
 
         self.knowledge_pipeline_service = (
-            KnowledgePipelineService(
-                self.workspace
-                )
+            KnowledgePipelineService()
         )
-        
+
         self.retrieval = (
             RetrievalContainer(
-                self.workspace
+                self.knowledge_repository
             )
+        )
+
+        try:
+            self.retrieval.build_index()
+        except Exception as error:
+            print(
+                "Warning: could not build the knowledge index "
+                f"({error}). The Showrunner will run without library context."
+            )
+
+        self.knowledge_context = (
+            KnowledgeContextBuilder(
+                self.retrieval.search_service,
+                self.knowledge_repository,
+            )
+        )
+
+        self.project_context = (
+            ProjectContextBuilder()
+        )
+
+        self.showrunner = Showrunner(
+            self.project,
+            create_showrunner_llm(),
+            self.knowledge_context,
+            self.project_context,
         )
 
         self.router = CommandRouter()
@@ -303,7 +358,6 @@ class Application:
         """Switch to a different project."""
 
         self.project = project
-        self.showrunner = Showrunner(project)
 
         self._build_application()
 

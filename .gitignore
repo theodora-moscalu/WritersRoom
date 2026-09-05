@@ -27,3 +27,8 @@ build/
 
 # Local settings
 .env
+
+# Knowledge database (rebuilt from claims; embeddings are derived)
+workspace/*.db
+workspace/*.db-wal
+workspace/*.db-shm

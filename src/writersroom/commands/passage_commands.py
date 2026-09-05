@@ -43,8 +43,7 @@ class PassageCommands:
         """Prompt the user to choose a knowledge source."""
 
         sources = (
-            self.service.workspace
-            .list_knowledge_sources()
+            self.service.repository.list_sources()
         )
 
         if not sources:
@@ -66,7 +65,9 @@ class PassageCommands:
         """Prompt the user to choose a document."""
 
         documents = (
-            knowledge_source.list_documents()
+            self.service.repository.list_documents(
+                knowledge_source.identity
+            )
         )
 
         if not documents:

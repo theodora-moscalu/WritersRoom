@@ -1,5 +1,10 @@
-from writersroom.domains.workspace import (
-    Workspace,
+from support import knowledge_repository
+
+from writersroom.domains.enums.knowledge_domain import (
+    KnowledgeDomain,
+)
+from writersroom.domains.enums.knowledge_level import (
+    KnowledgeLevel,
 )
 from writersroom.domains.knowledge.passage import (
     Passage,
@@ -18,7 +23,7 @@ from writersroom.mappers.claim_mapper import (
 def main():
     print("Testing ClaimMapper...")
 
-    workspace = Workspace()
+    repository = knowledge_repository()
 
     passage = Passage(
         identity="PSG1",
@@ -32,6 +37,8 @@ def main():
             "A protagonist should pursue "
             "a concrete objective."
         ),
+        knowledge_level=KnowledgeLevel.PRINCIPLE,
+        knowledge_domain=KnowledgeDomain.STRUCTURE,
         explanation=(
             "Objectives drive story momentum."
         ),
@@ -48,7 +55,7 @@ def main():
     )
 
     claim = ClaimMapper.map(
-        workspace=workspace,
+        repository=repository,
         passage=passage,
         extracted=extracted,
     )

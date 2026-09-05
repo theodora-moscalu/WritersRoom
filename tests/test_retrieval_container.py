@@ -1,6 +1,5 @@
-from writersroom.domains.workspace import (
-    Workspace,
-)
+from support import knowledge_repository
+
 from writersroom.retrieval.retrieval_container import (
     RetrievalContainer,
 )
@@ -12,18 +11,19 @@ def main():
         "Testing RetrievalContainer..."
     )
 
-    workspace = (
-        Workspace()
-    )
-
     container = (
         RetrievalContainer(
-            workspace
+            knowledge_repository()
         )
     )
 
     assert (
         container.repository
+        is not None
+    )
+
+    assert (
+        container.embedding_repository
         is not None
     )
 

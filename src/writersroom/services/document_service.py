@@ -10,11 +10,8 @@ from writersroom.domains.knowledge.document import (
 class DocumentService:
     """Business logic for documents."""
 
-    def __init__(
-        self,
-        workspace,
-    ):
-        self.workspace = workspace
+    def __init__(self, repository):
+        self.repository = repository
 
     def add_document(
         self,
@@ -25,7 +22,7 @@ class DocumentService:
         """Create a document."""
 
         knowledge_source = (
-            self.workspace.find_knowledge_source_by_name(
+            self.repository.get_source_by_name(
                 knowledge_source_name
             )
         )
@@ -43,8 +40,9 @@ class DocumentService:
             )
 
         if (
-            knowledge_source.find_document(
-                name
+            self.repository.get_document_by_name(
+                knowledge_source.identity,
+                name,
             )
             is not None
         ):
@@ -53,7 +51,7 @@ class DocumentService:
             )
 
         document = Document(
-            identity=self.workspace.generate_identity(
+            identity=self.repository.next_identity(
                 IdentityPrefix.DOCUMENT
             ),
             knowledge_source_id=(
@@ -63,11 +61,7 @@ class DocumentService:
             description=description,
         )
 
-        knowledge_source.add_document(
-            document
-        )
-
-        self.workspace.save()
+        self.repository.add_document(document)
 
         return Result.ok(
             f"Added document '{name}'.",
@@ -81,7 +75,7 @@ class DocumentService:
         """Return all documents."""
 
         knowledge_source = (
-            self.workspace.find_knowledge_source_by_name(
+            self.repository.get_source_by_name(
                 knowledge_source_name
             )
         )
@@ -92,7 +86,9 @@ class DocumentService:
             )
 
         return Result.ok(
-            data=knowledge_source.list_documents(),
+            data=self.repository.list_documents(
+                knowledge_source.identity
+            ),
         )
 
     def show_document(
@@ -102,21 +98,9 @@ class DocumentService:
     ) -> Result:
         """Return a document."""
 
-        knowledge_source = (
-            self.workspace.find_knowledge_source_by_name(
-                knowledge_source_name
-            )
-        )
-
-        if knowledge_source is None:
-            return Result.fail(
-                f"Knowledge source '{knowledge_source_name}' was not found."
-            )
-
-        document = (
-            knowledge_source.find_document(
-                name
-            )
+        document = self._find_document(
+            knowledge_source_name,
+            name,
         )
 
         if document is None:
@@ -135,21 +119,9 @@ class DocumentService:
     ) -> Result:
         """Delete a document."""
 
-        knowledge_source = (
-            self.workspace.find_knowledge_source_by_name(
-                knowledge_source_name
-            )
-        )
-
-        if knowledge_source is None:
-            return Result.fail(
-                f"Knowledge source '{knowledge_source_name}' was not found."
-            )
-
-        document = (
-            knowledge_source.find_document(
-                name
-            )
+        document = self._find_document(
+            knowledge_source_name,
+            name,
         )
 
         if document is None:
@@ -157,12 +129,31 @@ class DocumentService:
                 f"Document '{name}' was not found."
             )
 
-        knowledge_source.remove_document(
-            name
+        self.repository.delete_document(
+            document.identity
         )
-
-        self.workspace.save()
 
         return Result.ok(
             f"Deleted document '{name}'."
+        )
+
+    def _find_document(
+        self,
+        knowledge_source_name: str,
+        name: str,
+    ):
+        """Resolve a document by source name and document name."""
+
+        knowledge_source = (
+            self.repository.get_source_by_name(
+                knowledge_source_name
+            )
+        )
+
+        if knowledge_source is None:
+            return None
+
+        return self.repository.get_document_by_name(
+            knowledge_source.identity,
+            name,
         )

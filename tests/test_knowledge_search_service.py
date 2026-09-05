@@ -4,14 +4,13 @@ from writersroom.domains.enums.knowledge_domain import (
 from writersroom.domains.enums.knowledge_level import (
     KnowledgeLevel,
 )
+from support import knowledge_repository
+
+from writersroom.database.embedding_repository import (
+    EmbeddingRepository,
+)
 from writersroom.domains.enums.knowledge_source_type import (
     KnowledgeSourceType,
-)
-from writersroom.domains.workspace import (
-    Workspace,
-)
-from writersroom.retrieval.claim_repository import (
-    ClaimRepository,
 )
 from writersroom.retrieval.embedding_retriever import (
     EmbeddingRetriever,
@@ -51,24 +50,24 @@ def main():
         "Testing KnowledgeSearchService..."
     )
 
-    workspace = Workspace()
+    repository = knowledge_repository()
 
     KnowledgeSourceService(
-        workspace
+        repository
     ).add_source(
         "Book",
         KnowledgeSourceType.BOOK,
     )
 
     DocumentService(
-        workspace
+        repository
     ).add_document(
         "Book",
         "Story",
     )
 
     PassageService(
-        workspace
+        repository
     ).add_passage(
         "Book",
         "Story",
@@ -76,7 +75,7 @@ def main():
     )
 
     ClaimService(
-        workspace
+        repository
     ).add_claim(
         knowledge_source_name="Book",
         document_name="Story",
@@ -84,12 +83,6 @@ def main():
         text="Conflict creates drama.",
         knowledge_level=KnowledgeLevel.PRINCIPLE,
         knowledge_domain=KnowledgeDomain.CONFLICT,
-    )
-
-    repository = (
-        ClaimRepository(
-            workspace
-        )
     )
 
     provider = (
@@ -104,6 +97,9 @@ def main():
         repository,
         provider,
         store,
+        EmbeddingRepository(
+            repository.database
+        ),
     ).index()
 
     retriever = (

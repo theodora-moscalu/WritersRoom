@@ -1,24 +1,16 @@
-from writersroom.domains.enums.identity_prefix import (
-    IdentityPrefix,
-)
 from writersroom.domains.enums.knowledge_source_type import (
     KnowledgeSourceType,
 )
 from writersroom.domains.knowledge.knowledge_source import (
     KnowledgeSource,
 )
-from writersroom.domains.workspace import Workspace
 
 
 def main():
     print("Testing KnowledgeSource...")
 
-    workspace = Workspace()
-
     source = KnowledgeSource(
-        identity=workspace.generate_identity(
-            IdentityPrefix.KNOWLEDGE_SOURCE
-        ),
+        identity="KS000001",
         name="Story",
         source_type=KnowledgeSourceType.BOOK,
         author="Robert McKee",

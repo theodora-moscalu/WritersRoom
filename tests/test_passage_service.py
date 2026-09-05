@@ -1,7 +1,8 @@
+from support import knowledge_repository
+
 from writersroom.domains.enums.knowledge_source_type import (
     KnowledgeSourceType,
 )
-from writersroom.domains.workspace import Workspace
 from writersroom.services.document_service import (
     DocumentService,
 )
@@ -16,11 +17,11 @@ from writersroom.services.passage_service import (
 def main():
     print("Testing PassageService...")
 
-    workspace = Workspace()
+    repository = knowledge_repository()
 
     knowledge_service = (
         KnowledgeSourceService(
-            workspace
+            repository
         )
     )
 
@@ -31,7 +32,7 @@ def main():
 
     document_service = (
         DocumentService(
-            workspace
+            repository
         )
     )
 
@@ -42,7 +43,7 @@ def main():
 
     passage_service = (
         PassageService(
-            workspace
+            repository
         )
     )
 
@@ -62,19 +63,21 @@ def main():
 
     assert passage.sequence == 1
 
-    source = (
-        workspace.find_knowledge_source_by_name(
-            "Story"
-        )
+    source = repository.get_source_by_name(
+        "Story"
     )
 
-    document = source.find_document(
-        "Chapter 1"
+    document = repository.get_document_by_name(
+        source.identity,
+        "Chapter 1",
     )
 
     assert (
-        document.find_passage(1)
-        is passage
+        repository.get_passage_by_sequence(
+            document.identity,
+            1,
+        ).identity
+        == passage.identity
     )
 
     #
@@ -131,7 +134,10 @@ def main():
     assert result.success
 
     assert (
-        document.find_passage(1)
+        repository.get_passage_by_sequence(
+            document.identity,
+            1,
+        )
         is None
     )
 

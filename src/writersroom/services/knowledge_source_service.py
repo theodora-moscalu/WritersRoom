@@ -13,8 +13,8 @@ from writersroom.domains.knowledge.knowledge_source import (
 class KnowledgeSourceService:
     """Business logic for knowledge sources."""
 
-    def __init__(self, workspace):
-        self.workspace = workspace
+    def __init__(self, repository):
+        self.repository = repository
 
     def add_source(
         self,
@@ -33,9 +33,7 @@ class KnowledgeSourceService:
             )
 
         if (
-            self.workspace.find_knowledge_source_by_name(
-                name
-            )
+            self.repository.get_source_by_name(name)
             is not None
         ):
             return Result.fail(
@@ -43,7 +41,7 @@ class KnowledgeSourceService:
             )
 
         source = KnowledgeSource(
-            identity=self.workspace.generate_identity(
+            identity=self.repository.next_identity(
                 IdentityPrefix.KNOWLEDGE_SOURCE
             ),
             name=name,
@@ -52,11 +50,7 @@ class KnowledgeSourceService:
             description=description,
         )
 
-        self.workspace.add_knowledge_source(
-            source
-        )
-
-        self.workspace.save()
+        self.repository.add_source(source)
 
         return Result.ok(
             f"Added knowledge source '{name}'.",
@@ -67,7 +61,7 @@ class KnowledgeSourceService:
         """Return all knowledge sources."""
 
         return Result.ok(
-            data=self.workspace.list_knowledge_sources()
+            data=self.repository.list_sources()
         )
 
     def show_source(
@@ -76,10 +70,8 @@ class KnowledgeSourceService:
     ) -> Result:
         """Return a knowledge source."""
 
-        source = (
-            self.workspace.find_knowledge_source_by_name(
-                name
-            )
+        source = self.repository.get_source_by_name(
+            name
         )
 
         if source is None:
@@ -97,10 +89,8 @@ class KnowledgeSourceService:
     ) -> Result:
         """Delete a knowledge source."""
 
-        source = (
-            self.workspace.find_knowledge_source_by_name(
-                name
-            )
+        source = self.repository.get_source_by_name(
+            name
         )
 
         if source is None:
@@ -108,11 +98,9 @@ class KnowledgeSourceService:
                 f"Knowledge source '{name}' was not found."
             )
 
-        self.workspace.remove_knowledge_source(
+        self.repository.delete_source(
             source.identity
         )
-
-        self.workspace.save()
 
         return Result.ok(
             f"Deleted knowledge source '{name}'."

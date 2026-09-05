@@ -399,6 +399,62 @@ Isolating it behind a repository keeps the rest of the system independent of per
 
 ---
 
+# ADR-020 — The Knowledge Library Lives in SQLite
+
+## Decision
+
+The knowledge library (sources, documents, passages, claims, provenance) is stored in a local
+SQLite database at `workspace/knowledge.db`, accessed only through `KnowledgeRepository`.
+
+Embeddings are derived data. They are persisted in the same database for speed, but are
+rebuilt from the claims whenever they are missing or stale.
+
+`workspace.json` retains only the list of projects.
+
+## Rationale
+
+The library is the foundation the whole system builds on and is expected to grow to millions of
+claims. A single JSON document rewritten on every change does not scale, cannot be queried, and
+makes `KnowledgeRepository` a tree-walker rather than the storage owner ADR-019 intends.
+
+Keeping embeddings out of the canonical model preserves ADR-002 (one canonical source) and
+ADR-007 (knowledge and retrieval are separate layers): a lost vector index is regenerated; lost
+claims are lost knowledge.
+
+## Consequences
+
+- Domain objects hold no persistence logic; the repository maps rows to them (ADR-010).
+- The retrieval index is rebuilt on demand from stored claims and their persisted embeddings.
+- A one-time importer migrates any pre-existing `workspace.json` library into the database.
+
+---
+
+# ADR-021 — The Showrunner is Retrieval-Augmented
+
+## Decision
+
+Before answering, the Showrunner retrieves the claims most relevant to the writer's message and
+the current project's story state, and grounds its response in them.
+
+Every suggestion names the claims it rests on. When the library holds nothing relevant, the
+Showrunner says so rather than inventing support. When claims conflict, it surfaces both.
+
+## Rationale
+
+The knowledge library only has value if the reasoning and generation layers consume it
+(ADR-007). A creative recommendation the writer cannot trace back to evidence is not
+explainable (ADR-008), and the point of the system is better decisions, not more text
+(ADR-009).
+
+## Consequences
+
+- `KnowledgeContextBuilder` and `ProjectContextBuilder` assemble the per-turn context;
+  neither is persisted into conversation history.
+- Retrieval feeds the agent, never the user directly — there is no "search the library" feature.
+- The same retrieval path serves the specialist agents (ADR-011) with domain filters later.
+
+---
+
 # Before Implementing Any Feature
 
 Every feature should be checked against these questions.

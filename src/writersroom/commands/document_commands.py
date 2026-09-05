@@ -40,8 +40,7 @@ class DocumentCommands:
         """Prompt the user to choose a knowledge source."""
 
         sources = (
-            self.service.workspace
-            .list_knowledge_sources()
+            self.service.repository.list_sources()
         )
 
         if not sources:
@@ -151,7 +150,8 @@ class DocumentCommands:
             f"Description: {document.description}"
         )
         print(
-            f"Passages: {len(document.passages)}"
+            "Passages: "
+            f"{len(self.service.repository.list_passages(document.identity))}"
         )
         print()
 

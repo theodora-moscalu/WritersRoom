@@ -1,11 +1,8 @@
+from writersroom.database.embedding_repository import (
+    text_hash,
+)
 from writersroom.domains.knowledge.claim import (
     Claim,
-)
-from writersroom.domains.knowledge.document import (
-    Document,
-)
-from writersroom.domains.knowledge.knowledge_source import (
-    KnowledgeSource,
 )
 from writersroom.retrieval.base_embedding_provider import (
     BaseEmbeddingProvider,
@@ -13,25 +10,17 @@ from writersroom.retrieval.base_embedding_provider import (
 from writersroom.retrieval.base_vector_store import (
     BaseVectorStore,
 )
-from writersroom.retrieval.claim_repository import (
-    ClaimRepository,
-)
-from writersroom.retrieval.embedding_cache import (
-    EmbeddingCache,
-)
 
 
 class KnowledgeIndexer:
-    """Builds the semantic search index."""
+    """Builds the semantic search index from stored claims."""
 
     def __init__(
         self,
-        repository: ClaimRepository,
+        repository,
         embedding_provider: BaseEmbeddingProvider,
         vector_store: BaseVectorStore,
-        embedding_cache: (
-            EmbeddingCache | None
-        ) = None,
+        embedding_repository,
     ):
         self.repository = repository
 
@@ -43,59 +32,24 @@ class KnowledgeIndexer:
             vector_store
         )
 
-        self.embedding_cache = (
-            embedding_cache
-            or EmbeddingCache()
+        self.embedding_repository = (
+            embedding_repository
         )
 
-    def index(
-        self,
-    ):
+    def index(self):
         """Index every stored claim."""
 
-        for source in (
-            self.repository.list_sources()
-        ):
-
-            self.index_source(
-                source
-            )
-
-    def index_source(
-        self,
-        source: KnowledgeSource,
-    ):
-        """Index every claim in a knowledge source."""
-
-        for document in (
-            source.list_documents()
-        ):
-
-            self.index_document(
-                document
-            )
-
-    def index_document(
-        self,
-        document: Document,
-    ):
-        """Index every claim in a document."""
-
         for claim in (
-            self.repository.list_document_claims(
-                document
-            )
+            self.repository.list_claims()
         ):
 
-            self.index_claim(
-                claim
-            )
+            self.index_claim(claim)
 
     def index_claim(
         self,
         claim: Claim,
     ):
-        """Index a single claim."""
+        """Index a single claim, reusing a persisted embedding when current."""
 
         if self.vector_store.contains(
             claim.identity
@@ -105,30 +59,38 @@ class KnowledgeIndexer:
                 claim.identity
             )
 
-        if self.embedding_cache.contains(
-            claim.text
-        ):
-
-            embedding = (
-                self.embedding_cache.get(
-                    claim.text
-                )
-            )
-
-        else:
-
-            embedding = (
-                self.embedding_provider.embed(
-                    claim.text
-                )
-            )
-
-            self.embedding_cache.store(
-                claim.text,
-                embedding,
-            )
+        embedding = self._embedding_for(claim)
 
         self.vector_store.add(
             claim,
             embedding,
         )
+
+    def _embedding_for(self, claim: Claim):
+        """Return a current embedding for a claim, computing it if needed."""
+
+        stored_hash = (
+            self.embedding_repository.get_text_hash(
+                claim.identity
+            )
+        )
+
+        if stored_hash == text_hash(claim.text):
+
+            return self.embedding_repository.get(
+                claim.identity
+            )
+
+        embedding = (
+            self.embedding_provider.embed(
+                claim.text
+            )
+        )
+
+        self.embedding_repository.upsert(
+            claim.identity,
+            claim.text,
+            embedding,
+        )
+
+        return embedding

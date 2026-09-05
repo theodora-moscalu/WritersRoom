@@ -1,9 +1,10 @@
 from pathlib import Path
 
+from support import knowledge_repository
+
 from writersroom.domains.enums.knowledge_source_type import (
     KnowledgeSourceType,
 )
-from writersroom.domains.workspace import Workspace
 from writersroom.services.import_service import (
     ImportService,
 )
@@ -15,11 +16,11 @@ from writersroom.services.knowledge_source_service import (
 def main():
     print("Testing ImportService...")
 
-    workspace = Workspace()
+    repository = knowledge_repository()
 
     knowledge_service = (
         KnowledgeSourceService(
-            workspace
+            repository
         )
     )
 
@@ -44,7 +45,7 @@ def main():
 
     import_service = (
         ImportService(
-            workspace
+            repository
         )
     )
 
@@ -59,21 +60,22 @@ def main():
 
     assert result.success
 
-    source = (
-        workspace.find_knowledge_source_by_name(
-            "Books"
-        )
+    source = repository.get_source_by_name(
+        "Books"
     )
 
     assert source is not None
 
-    document = source.find_document(
-        "Test Story"
+    document = repository.get_document_by_name(
+        source.identity,
+        "Test Story",
     )
 
     assert document is not None
 
-    passages = document.list_passages()
+    passages = repository.list_passages(
+        document.identity
+    )
 
     assert len(passages) == 3
 

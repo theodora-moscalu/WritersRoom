@@ -1,8 +1,7 @@
+from support import knowledge_repository
+
 from writersroom.domains.enums.knowledge_source_type import (
     KnowledgeSourceType,
-)
-from writersroom.domains.workspace import (
-    Workspace,
 )
 from writersroom.processors.processed_document import (
     ProcessedDocument,
@@ -39,29 +38,29 @@ def main():
         "Testing KnowledgePipelineService..."
     )
 
-    workspace = Workspace()
+    repository = knowledge_repository()
 
     knowledge_service = (
         KnowledgeSourceService(
-            workspace
+            repository
         )
     )
 
     document_service = (
         DocumentService(
-            workspace
+            repository
         )
     )
 
     passage_service = (
         PassageService(
-            workspace
+            repository
         )
     )
 
     claim_service = (
         ClaimService(
-            workspace
+            repository
         )
     )
 
@@ -102,9 +101,7 @@ def main():
     )
 
     pipeline = (
-        KnowledgePipelineService(
-            workspace
-        )
+        KnowledgePipelineService()
     )
 
     result = pipeline.process(

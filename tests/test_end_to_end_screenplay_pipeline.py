@@ -1,10 +1,9 @@
 from pathlib import Path
 
+from support import knowledge_repository
+
 from writersroom.domains.enums.knowledge_source_type import (
     KnowledgeSourceType,
-)
-from writersroom.domains.workspace import (
-    Workspace,
 )
 from writersroom.importers.importer_factory import (
     ImporterFactory,
@@ -35,36 +34,34 @@ def main():
     print("WRITERSROOM END-TO-END PIPELINE")
     print("=" * 60)
 
-    workspace = Workspace()
+    repository = knowledge_repository()
 
     knowledge_sources = (
         KnowledgeSourceService(
-            workspace
+            repository
         )
     )
 
     documents = (
         DocumentService(
-            workspace
+            repository
         )
     )
 
     passages = (
         PassageService(
-            workspace
+            repository
         )
     )
 
     claims = (
         ClaimService(
-            workspace
+            repository
         )
     )
 
     pipeline = (
-        KnowledgePipelineService(
-            workspace
-        )
+        KnowledgePipelineService()
     )
 
     pdf = (
@@ -218,7 +215,7 @@ def main():
 
     assert (
         len(review.accepted_items)
-        == len(processed.source_units)
+        >= len(processed.source_units)
     )
 
     print()

@@ -43,8 +43,7 @@ class ClaimCommands:
         """Prompt for a knowledge source."""
 
         sources = (
-            self.service.workspace
-            .list_knowledge_sources()
+            self.service.repository.list_sources()
         )
 
         if not sources:
@@ -64,7 +63,9 @@ class ClaimCommands:
         """Prompt for a document."""
 
         documents = (
-            knowledge_source.list_documents()
+            self.service.repository.list_documents(
+                knowledge_source.identity
+            )
         )
 
         if not documents:
@@ -84,7 +85,9 @@ class ClaimCommands:
         """Prompt for a passage."""
 
         passages = (
-            document.list_passages()
+            self.service.repository.list_passages(
+                document.identity
+            )
         )
 
         if not passages:
@@ -210,7 +213,11 @@ class ClaimCommands:
         if passage is None:
             return
 
-        claims = passage.list_claims()
+        claims = (
+            self.service.repository.list_claims_for_passage(
+                passage.identity
+            )
+        )
 
         if not claims:
             print("\nNo claims.\n")
@@ -271,7 +278,11 @@ class ClaimCommands:
         if passage is None:
             return
 
-        claims = passage.list_claims()
+        claims = (
+            self.service.repository.list_claims_for_passage(
+                passage.identity
+            )
+        )
 
         if not claims:
             print("\nNo claims.\n")

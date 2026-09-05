@@ -28,25 +28,25 @@ class ImportService:
 
     def __init__(
         self,
-        workspace,
+        repository,
     ):
-        self.workspace = workspace
+        self.repository = repository
 
         self.knowledge_source_service = (
             KnowledgeSourceService(
-                workspace
+                repository
             )
         )
 
         self.document_service = (
             DocumentService(
-                workspace
+                repository
             )
         )
 
         self.passage_service = (
             PassageService(
-                workspace
+                repository
             )
         )
 
@@ -60,7 +60,7 @@ class ImportService:
         """Import a document."""
 
         if (
-            self.workspace.find_knowledge_source_by_name(
+            self.repository.get_source_by_name(
                 knowledge_source_name
             )
             is None

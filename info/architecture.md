@@ -44,6 +44,8 @@ flowchart TD
     APP --> KPS
     PROC -.processed document.-> KPS
     KPS --> CS["ClaimService"]
+    IS --> KREPO
+    CS --> KREPO
 
     subgraph RelDiscovery["Relationship Discovery"]
         RDS["RelationshipDiscoveryService"]
@@ -55,16 +57,17 @@ flowchart TD
 
     subgraph Retrieval["Retrieval / Search"]
         RC["RetrievalContainer"]
-        REPO["ClaimRepository"]
+        EREPO["EmbeddingRepository"]
         EMB["OllamaEmbeddingProvider"]
         IDX["KnowledgeIndexer"]
         VS["InMemoryVectorStore"]
         RET["EmbeddingRetriever"]
         KSS["KnowledgeSearchService"]
 
-        RC --> REPO
+        RC --> EREPO
         RC --> EMB
         RC --> IDX
+        IDX --> EREPO
         IDX --> VS
         RC --> RET
         RET --> VS
@@ -72,14 +75,32 @@ flowchart TD
     end
 
     APP --> RC
+    RC --> KREPO
+    IDX -.reads claims.-> KREPO
+    APP -.build_index() at startup.-> IDX
+
+    subgraph Showrunner["Showrunner (chat agent)"]
+        SR["Showrunner"]
+        KCTX["KnowledgeContextBuilder"]
+        PCTX["ProjectContextBuilder"]
+
+        SR --> KCTX
+        SR --> PCTX
+    end
+
+    APP --> SR
+    KCTX -->|relevant claims| KSS
+    KCTX --> KREPO
+    PCTX -.project state.-> APP
 
     subgraph LLM["LLM Layer"]
-        FACTORY["llm_factory\n(WRITERSROOM_EXTRACTION_PROVIDER)"]
+        FACTORY["llm_factory\n(EXTRACTION / SHOWRUNNER provider)"]
         AC["AnthropicClient\n(claude-sonnet-5)"]
         OC["OllamaClient\n(base_agent.Agent default)"]
     end
 
     LIB --> FACTORY
+    SR --> FACTORY
     FACTORY -->|default| AC
     FACTORY -.provider=ollama.-> OC
     RAN --> OC
@@ -88,15 +109,19 @@ flowchart TD
     OC -->|local requests| OLLAMA[("Ollama server\n(qwen3:8b, embeddings)")]
 
     subgraph Persistence["Persistence"]
-        WS["Workspace"]
+        KREPO["KnowledgeRepository\n(storage owner - ADR-019)"]
+        DB[("workspace/knowledge.db\n(SQLite: sources, documents,\npassages, claims, provenance,\nembeddings, identity counters)")]
+        WS["Workspace\n(projects list)"]
         WSJSON[("workspace/workspace.json")]
         PROJJSON[("Project files")]
+        WJI["WorkspaceJsonImport\n(one-time migration)"]
     end
 
     APP --> WS
-    IS --> WS
-    KPS --> WS
-    RC --> WS
+    APP --> KREPO
+    KREPO --> DB
     WS --> WSJSON
+    WJI -.first run.-> DB
+    WSJSON -.legacy library.-> WJI
     APP --> PROJJSON
 ```

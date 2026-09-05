@@ -1,6 +1,3 @@
-from writersroom.domains.enums.identity_prefix import (
-    IdentityPrefix,
-)
 from writersroom.domains.workspace import Workspace
 
 
@@ -10,52 +7,16 @@ def main():
     workspace = Workspace()
 
     assert workspace.projects == []
-    assert workspace.knowledge_sources == []
-    assert workspace.personal_knowledge == []
 
-    assert (
-        workspace.generate_identity(
-            IdentityPrefix.KNOWLEDGE_SOURCE
-        )
-        == "KS000001"
+    workspace.add_project(
+        type("P", (), {"title": "The Wine Game"})
     )
 
-    assert (
-        workspace.generate_identity(
-            IdentityPrefix.KNOWLEDGE_SOURCE
-        )
-        == "KS000002"
-    )
+    assert workspace.projects == ["The Wine Game"]
 
-    assert (
-        workspace.generate_identity(
-            IdentityPrefix.DOCUMENT
-        )
-        == "DOC000001"
-    )
+    workspace.remove_project("The Wine Game")
 
-    workspace.save()
-
-    loaded = Workspace.load()
-
-    assert loaded.identity_counters == {
-        "KS": 2,
-        "DOC": 1,
-    }
-
-    assert (
-        loaded.generate_identity(
-            IdentityPrefix.KNOWLEDGE_SOURCE
-        )
-        == "KS000003"
-    )
-
-    assert (
-        loaded.generate_identity(
-            IdentityPrefix.DOCUMENT
-        )
-        == "DOC000002"
-    )
+    assert workspace.projects == []
 
     print("Workspace tests passed.")
 

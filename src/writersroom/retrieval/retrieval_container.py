@@ -1,8 +1,5 @@
-from writersroom.domains.workspace import (
-    Workspace,
-)
-from writersroom.retrieval.claim_repository import (
-    ClaimRepository,
+from writersroom.database.embedding_repository import (
+    EmbeddingRepository,
 )
 from writersroom.retrieval.embedding_retriever import (
     EmbeddingRetriever,
@@ -26,11 +23,13 @@ class RetrievalContainer:
 
     def __init__(
         self,
-        workspace: Workspace,
+        repository,
     ):
-        self.repository = (
-            ClaimRepository(
-                workspace
+        self.repository = repository
+
+        self.embedding_repository = (
+            EmbeddingRepository(
+                repository.database
             )
         )
 
@@ -47,6 +46,7 @@ class RetrievalContainer:
                 self.repository,
                 self.provider,
                 self.vector_store,
+                self.embedding_repository,
             )
         )
 
@@ -62,3 +62,8 @@ class RetrievalContainer:
                 self.retriever,
             )
         )
+
+    def build_index(self):
+        """Populate the in-memory vector store from persisted embeddings."""
+
+        self.indexer.index()

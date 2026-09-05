@@ -77,9 +77,9 @@ the end-user product.
 
 - **Layout.** Composition root in [src/writersroom/application.py](src/writersroom/application.py)
   wires everything. `domains/` = pure domain model (no infra imports). `services/` = use-case
-  coordination. `agents/` = LLM-backed specialists. `retrieval/`, `importers/`, `processors/`,
-  `extraction/`, `review/`, `llm/` = infrastructure. `commands/` + `ui/` = entry surfaces
-  (CLI and Streamlit).
+  coordination. `agents/` = LLM-backed specialists. `database/`, `retrieval/`, `importers/`,
+  `processors/`, `extraction/`, `review/`, `llm/` = infrastructure. `commands/` + `ui/` = entry
+  surfaces (CLI and Streamlit).
 - **Dependency injection.** Constructors take optional collaborators defaulting to a concrete
   implementation — e.g. `Agent(name, prompt_file, llm=None)` falls back to `OllamaClient()`;
   `ExtractionService(librarian=None, transformer=None)`. Swap behaviour by injecting, not by
@@ -87,16 +87,31 @@ the end-user product.
 - **Pluggable strategy = factory.** Provider/strategy selection lives in a small factory
   (`llm/llm_factory.py`, `ProcessorFactory`, `ImporterFactory`, `RetrievalContainer`), driven
   by config or classification — not `if` chains scattered through call sites.
-- **Identity.** Generated with a typed prefix from `domains/enums/identity_prefix.py`
-  (`CL` claim, `SC` scene, `PV` provenance…). Persistence goes through `to_dict` / `from_dict`
-  on the domain object.
+- **Identity.** Knowledge-library identities come from `KnowledgeRepository.next_identity(prefix)`
+  (typed prefixes in `domains/enums/identity_prefix.py` — `CL` claim, `PV` provenance, `KS`
+  source…), counters stored in the DB. Project-domain entities (Character, Scene…) use their
+  `name` as identity.
+- **Persistence (ADR-020).** The knowledge library lives in SQLite at `workspace/knowledge.db`,
+  reached **only** through `database/knowledge_repository.py` (`KnowledgeRepository`) — no ORM,
+  hand-written SQL, rows mapped to the existing domain objects. Embeddings are derived data,
+  persisted in the same DB (`database/embedding_repository.py`) and rebuilt from claims when
+  stale. `workspace.json` now holds only the projects list; `projects/*.json` are per-project.
+  `database/workspace_import.py` migrates a legacy `workspace.json` library on first run.
 - **House style.** Very vertical: one argument per line, blank line between statements, imports
   wrapped in parens. Match the surrounding file.
 - **LLM infrastructure.** `.env` is loaded once in `src/writersroom/__init__.py` via
-  `python-dotenv`. Knowledge extraction runs on Claude Sonnet (`claude-sonnet-5`) through
-  `llm/anthropic_client.py`; `WRITERSROOM_EXTRACTION_PROVIDER=ollama` switches it back. Other
-  agents and embeddings still use Ollama. Extraction output is a **plain-text block format**
-  (`LEVEL:` / `DOMAIN:` / …), normalized then parsed — not JSON.
+  `python-dotenv`. Knowledge extraction (`WRITERSROOM_EXTRACTION_PROVIDER`) and the Showrunner
+  (`WRITERSROOM_SHOWRUNNER_PROVIDER`) both default to Claude Sonnet (`claude-sonnet-5`) through
+  `llm/anthropic_client.py`, built by `llm/llm_factory.py`; set either to `ollama` to switch
+  back. Embeddings and `RelationshipAnalyser` still use Ollama. Extraction output is a
+  **plain-text block format** (`LEVEL:` / `DOMAIN:` / …), normalized then parsed — not JSON.
+- **Retrieval-augmented Showrunner (ADR-021).** Each turn, `Showrunner.respond()` builds a
+  transient system prompt = base prompt + `ProjectContextBuilder` (the project's characters /
+  relationships / episodes / notes) + `KnowledgeContextBuilder` (top claims from the library
+  for that message, via `RetrievalContainer.search_service`). It's told to ground suggestions
+  in those claims, cite their ids, and end with `Grounded in: [CL…]`. `Application` calls
+  `RetrievalContainer.build_index()` at startup (guarded — Ollama may be down); claims added in
+  a Streamlit session are picked up at the next CLI start.
 
 ## Tests
 
@@ -104,14 +119,16 @@ the end-user product.
   (`uv run python tests/test_extraction_service.py`). No pytest, no mocking — they exercise the
   real pipeline, so LLM-touching tests need `ANTHROPIC_API_KEY` (or the Ollama fallback) and a
   running Ollama for embeddings.
+- `tests/support.py` — `knowledge_repository()` returns a `KnowledgeRepository` over an
+  in-memory SQLite DB; knowledge-library tests use it instead of building a `Workspace`.
 
 ## Commands
 
 ```bash
-uv sync                                       # install / update deps
-uv run python main.py                         # CLI
+uv sync                                        # install / update deps
+uv run python -m writersroom.main              # CLI
 uv run streamlit run src/writersroom/ui/app.py # Streamlit UI
-uv run python tests/test_<name>.py            # run one test script
+uv run python tests/test_<name>.py             # run one test script
 uv add <pkg>                                   # add a dependency (updates pyproject + uv.lock)
 ```
 

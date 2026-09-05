@@ -1,8 +1,13 @@
+from support import knowledge_repository
+
+from writersroom.domains.enums.knowledge_domain import (
+    KnowledgeDomain,
+)
+from writersroom.domains.enums.knowledge_level import (
+    KnowledgeLevel,
+)
 from writersroom.domains.enums.knowledge_source_type import (
     KnowledgeSourceType,
-)
-from writersroom.domains.workspace import (
-    Workspace,
 )
 from writersroom.extraction.extracted_claim import (
     ExtractedClaim,
@@ -27,29 +32,29 @@ from writersroom.services.passage_service import (
 def main():
     print("Testing ClaimService...")
 
-    workspace = Workspace()
+    repository = knowledge_repository()
 
     knowledge_service = (
         KnowledgeSourceService(
-            workspace
+            repository
         )
     )
 
     document_service = (
         DocumentService(
-            workspace
+            repository
         )
     )
 
     passage_service = (
         PassageService(
-            workspace
+            repository
         )
     )
 
     claim_service = (
         ClaimService(
-            workspace
+            repository
         )
     )
 
@@ -77,6 +82,8 @@ def main():
             "A protagonist should pursue "
             "a concrete objective."
         ),
+        knowledge_level=KnowledgeLevel.PRINCIPLE,
+        knowledge_domain=KnowledgeDomain.STRUCTURE,
         explanation=(
             "Objectives create momentum."
         ),

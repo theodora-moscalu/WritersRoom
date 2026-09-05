@@ -1,10 +1,9 @@
 from pathlib import Path
 
+from support import knowledge_repository
+
 from writersroom.domains.enums.knowledge_source_type import (
     KnowledgeSourceType,
-)
-from writersroom.domains.workspace import (
-    Workspace,
 )
 from writersroom.extraction.extraction_granularity import (
     ExtractionGranularity,
@@ -38,36 +37,28 @@ def main():
     print("WRITERSROOM SCENE PIPELINE")
     print("=" * 60)
 
-    workspace = Workspace()
+    repository = knowledge_repository()
 
     knowledge_sources = (
         KnowledgeSourceService(
-            workspace
+            repository
         )
     )
 
     documents = (
         DocumentService(
-            workspace
+            repository
         )
     )
 
     passages = (
         PassageService(
-            workspace
-        )
-    )
-
-    claims = (
-        ClaimService(
-            workspace
+            repository
         )
     )
 
     pipeline = (
-        KnowledgePipelineService(
-            workspace
-        )
+        KnowledgePipelineService()
     )
 
     pdf = (

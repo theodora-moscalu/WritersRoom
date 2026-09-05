@@ -10,11 +10,8 @@ from writersroom.domains.knowledge.passage import (
 class PassageService:
     """Business logic for passages."""
 
-    def __init__(
-        self,
-        workspace,
-    ):
-        self.workspace = workspace
+    def __init__(self, repository):
+        self.repository = repository
 
     def add_passage(
         self,
@@ -24,19 +21,9 @@ class PassageService:
     ) -> Result:
         """Create a passage."""
 
-        knowledge_source = (
-            self.workspace.find_knowledge_source_by_name(
-                knowledge_source_name
-            )
-        )
-
-        if knowledge_source is None:
-            return Result.fail(
-                f"Knowledge source '{knowledge_source_name}' was not found."
-            )
-
-        document = knowledge_source.find_document(
-            document_name
+        document = self._find_document(
+            knowledge_source_name,
+            document_name,
         )
 
         if document is None:
@@ -45,11 +32,13 @@ class PassageService:
             )
 
         sequence = (
-            document.next_passage_sequence()
+            self.repository.next_passage_sequence(
+                document.identity
+            )
         )
 
         passage = Passage(
-            identity=self.workspace.generate_identity(
+            identity=self.repository.next_identity(
                 IdentityPrefix.PASSAGE
             ),
             document_id=document.identity,
@@ -57,11 +46,7 @@ class PassageService:
             text=text,
         )
 
-        document.add_passage(
-            passage
-        )
-
-        self.workspace.save()
+        self.repository.add_passage(passage)
 
         return Result.ok(
             f"Added passage {sequence}.",
@@ -75,19 +60,9 @@ class PassageService:
     ) -> Result:
         """Return all passages."""
 
-        knowledge_source = (
-            self.workspace.find_knowledge_source_by_name(
-                knowledge_source_name
-            )
-        )
-
-        if knowledge_source is None:
-            return Result.fail(
-                f"Knowledge source '{knowledge_source_name}' was not found."
-            )
-
-        document = knowledge_source.find_document(
-            document_name
+        document = self._find_document(
+            knowledge_source_name,
+            document_name,
         )
 
         if document is None:
@@ -96,7 +71,9 @@ class PassageService:
             )
 
         return Result.ok(
-            data=document.list_passages(),
+            data=self.repository.list_passages(
+                document.identity
+            ),
         )
 
     def show_passage(
@@ -107,28 +84,10 @@ class PassageService:
     ) -> Result:
         """Return a passage."""
 
-        knowledge_source = (
-            self.workspace.find_knowledge_source_by_name(
-                knowledge_source_name
-            )
-        )
-
-        if knowledge_source is None:
-            return Result.fail(
-                f"Knowledge source '{knowledge_source_name}' was not found."
-            )
-
-        document = knowledge_source.find_document(
-            document_name
-        )
-
-        if document is None:
-            return Result.fail(
-                f"Document '{document_name}' was not found."
-            )
-
-        passage = document.find_passage(
-            sequence
+        passage = self._find_passage(
+            knowledge_source_name,
+            document_name,
+            sequence,
         )
 
         if passage is None:
@@ -148,28 +107,10 @@ class PassageService:
     ) -> Result:
         """Delete a passage."""
 
-        knowledge_source = (
-            self.workspace.find_knowledge_source_by_name(
-                knowledge_source_name
-            )
-        )
-
-        if knowledge_source is None:
-            return Result.fail(
-                f"Knowledge source '{knowledge_source_name}' was not found."
-            )
-
-        document = knowledge_source.find_document(
-            document_name
-        )
-
-        if document is None:
-            return Result.fail(
-                f"Document '{document_name}' was not found."
-            )
-
-        passage = document.find_passage(
-            sequence
+        passage = self._find_passage(
+            knowledge_source_name,
+            document_name,
+            sequence,
         )
 
         if passage is None:
@@ -177,12 +118,52 @@ class PassageService:
                 f"Passage {sequence} was not found."
             )
 
-        document.remove_passage(
-            sequence
+        self.repository.delete_passage(
+            passage.identity
         )
-
-        self.workspace.save()
 
         return Result.ok(
             f"Deleted passage {sequence}."
+        )
+
+    def _find_document(
+        self,
+        knowledge_source_name: str,
+        document_name: str,
+    ):
+        """Resolve a document by source name and document name."""
+
+        knowledge_source = (
+            self.repository.get_source_by_name(
+                knowledge_source_name
+            )
+        )
+
+        if knowledge_source is None:
+            return None
+
+        return self.repository.get_document_by_name(
+            knowledge_source.identity,
+            document_name,
+        )
+
+    def _find_passage(
+        self,
+        knowledge_source_name: str,
+        document_name: str,
+        sequence: int,
+    ):
+        """Resolve a passage by source name, document name and sequence."""
+
+        document = self._find_document(
+            knowledge_source_name,
+            document_name,
+        )
+
+        if document is None:
+            return None
+
+        return self.repository.get_passage_by_sequence(
+            document.identity,
+            sequence,
         )

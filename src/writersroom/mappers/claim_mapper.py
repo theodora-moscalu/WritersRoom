@@ -20,14 +20,14 @@ class ClaimMapper:
 
     @staticmethod
     def map(
-        workspace,
+        repository,
         passage: Passage,
         extracted: ExtractedClaim,
     ) -> Claim:
         """Create a domain claim."""
 
         claim = Claim(
-            identity=workspace.generate_identity(
+            identity=repository.next_identity(
                 IdentityPrefix.CLAIM
             ),
             passage_id=passage.identity,
@@ -47,7 +47,7 @@ class ClaimMapper:
 
             claim.add_provenance(
                 Provenance(
-                    identity=workspace.generate_identity(
+                    identity=repository.next_identity(
                         IdentityPrefix.PROVENANCE
                     ),
                     claim_id=claim.identity,

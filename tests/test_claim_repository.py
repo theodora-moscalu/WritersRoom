@@ -1,3 +1,5 @@
+from support import knowledge_repository
+
 from writersroom.domains.enums.knowledge_domain import (
     KnowledgeDomain,
 )
@@ -6,12 +8,6 @@ from writersroom.domains.enums.knowledge_level import (
 )
 from writersroom.domains.enums.knowledge_source_type import (
     KnowledgeSourceType,
-)
-from writersroom.domains.workspace import (
-    Workspace,
-)
-from writersroom.retrieval.claim_repository import (
-    ClaimRepository,
 )
 from writersroom.services.claim_service import (
     ClaimService,
@@ -30,54 +26,38 @@ from writersroom.services.passage_service import (
 def main():
 
     print(
-        "Testing ClaimRepository..."
+        "Testing KnowledgeRepository..."
     )
 
-    workspace = Workspace()
+    repository = knowledge_repository()
 
-    knowledge_sources = (
-        KnowledgeSourceService(
-            workspace
-        )
-    )
-
-    documents = (
-        DocumentService(
-            workspace
-        )
-    )
-
-    passages = (
-        PassageService(
-            workspace
-        )
-    )
-
-    claims = (
-        ClaimService(
-            workspace
-        )
-    )
-
-    knowledge_sources.add_source(
+    KnowledgeSourceService(
+        repository
+    ).add_source(
         name="Book",
         source_type=(
             KnowledgeSourceType.BOOK
         ),
     )
 
-    documents.add_document(
+    DocumentService(
+        repository
+    ).add_document(
         knowledge_source_name="Book",
         name="Story",
     )
 
-    passages.add_passage(
+    PassageService(
+        repository
+    ).add_passage(
         knowledge_source_name="Book",
         document_name="Story",
         text="Conflict creates drama.",
     )
 
-    claims.add_claim(
+    ClaimService(
+        repository
+    ).add_claim(
         knowledge_source_name="Book",
         document_name="Story",
         passage_sequence=1,
@@ -93,12 +73,6 @@ def main():
         ),
     )
 
-    repository = (
-        ClaimRepository(
-            workspace
-        )
-    )
-
     all_claims = (
         repository.list_claims()
     )
@@ -111,7 +85,7 @@ def main():
     claim = all_claims[0]
 
     found = (
-        repository.find_claim(
+        repository.get_claim(
             claim.identity
         )
     )
@@ -141,16 +115,30 @@ def main():
         == KnowledgeDomain.CONFLICT
     )
 
-    print()
+    #
+    # Deletion cascades and reads survive a fresh repository view
+    #
 
-    print(
-        f"Repository contains {len(all_claims)} claim(s)."
+    repository.delete_claim(
+        claim.identity
+    )
+
+    assert (
+        repository.get_claim(
+            claim.identity
+        )
+        is None
+    )
+
+    assert (
+        len(repository.list_claims())
+        == 0
     )
 
     print()
 
     print(
-        "ClaimRepository tests passed."
+        "KnowledgeRepository tests passed."
     )
 
 

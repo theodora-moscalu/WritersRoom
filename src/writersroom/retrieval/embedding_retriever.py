@@ -54,7 +54,52 @@ class EmbeddingRetriever(
             )
         )
 
-        return self.vector_store.search(
-            embedding,
-            query.max_results,
+        has_filters = bool(
+            query.knowledge_domains
+            or query.knowledge_levels
         )
+
+        limit = (
+            max(query.max_results * 5, 50)
+            if has_filters
+            else query.max_results
+        )
+
+        results = self.vector_store.search(
+            embedding,
+            limit,
+        )
+
+        if not has_filters:
+            return results
+
+        filtered = [
+            result
+            for result in results
+            if self._matches(result, query)
+        ]
+
+        return filtered[: query.max_results]
+
+    def _matches(
+        self,
+        result: RetrievalResult,
+        query: KnowledgeQuery,
+    ) -> bool:
+        """Check a result against the query's domain and level filters."""
+
+        if (
+            query.knowledge_domains
+            and result.knowledge_domain
+            not in query.knowledge_domains
+        ):
+            return False
+
+        if (
+            query.knowledge_levels
+            and result.knowledge_level
+            not in query.knowledge_levels
+        ):
+            return False
+
+        return True

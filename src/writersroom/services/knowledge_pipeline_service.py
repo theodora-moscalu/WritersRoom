@@ -28,10 +28,7 @@ from writersroom.services.review_service import (
 class KnowledgePipelineService:
     """Coordinates the knowledge pipeline."""
 
-    def __init__(
-        self,
-        workspace,
-    ):
+    def __init__(self):
         self.extraction_service = (
             ExtractionService()
         )

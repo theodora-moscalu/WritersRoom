@@ -1,7 +1,8 @@
+from support import knowledge_repository
+
 from writersroom.domains.enums.knowledge_source_type import (
     KnowledgeSourceType,
 )
-from writersroom.domains.workspace import Workspace
 from writersroom.services.document_service import (
     DocumentService,
 )
@@ -13,11 +14,11 @@ from writersroom.services.knowledge_source_service import (
 def main():
     print("Testing DocumentService...")
 
-    workspace = Workspace()
+    repository = knowledge_repository()
 
     knowledge_service = (
         KnowledgeSourceService(
-            workspace
+            repository
         )
     )
 
@@ -28,7 +29,7 @@ def main():
     )
 
     document_service = DocumentService(
-        workspace
+        repository
     )
 
     #
@@ -47,17 +48,16 @@ def main():
 
     assert document.name == "Chapter 1"
 
-    source = (
-        workspace.find_knowledge_source_by_name(
-            "Story"
-        )
+    source = repository.get_source_by_name(
+        "Story"
     )
 
     assert (
-        source.find_document(
-            "Chapter 1"
-        )
-        is document
+        repository.get_document_by_name(
+            source.identity,
+            "Chapter 1",
+        ).identity
+        == document.identity
     )
 
     #
@@ -133,8 +133,9 @@ def main():
     assert result.success
 
     assert (
-        source.find_document(
-            "Chapter 1"
+        repository.get_document_by_name(
+            source.identity,
+            "Chapter 1",
         )
         is None
     )

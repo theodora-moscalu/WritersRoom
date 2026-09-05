@@ -4,11 +4,10 @@ from writersroom.domains.enums.knowledge_domain import (
 from writersroom.domains.enums.knowledge_level import (
     KnowledgeLevel,
 )
+from support import knowledge_repository
+
 from writersroom.domains.enums.knowledge_source_type import (
     KnowledgeSourceType,
-)
-from writersroom.domains.workspace import (
-    Workspace,
 )
 from writersroom.retrieval.knowledge_query import (
     KnowledgeQuery,
@@ -39,24 +38,24 @@ def main():
         "Testing semantic retrieval..."
     )
 
-    workspace = Workspace()
+    repository = knowledge_repository()
 
     KnowledgeSourceService(
-        workspace
+        repository
     ).add_source(
         "Book",
         KnowledgeSourceType.BOOK,
     )
 
     DocumentService(
-        workspace
+        repository
     ).add_document(
         "Book",
         "Story",
     )
 
     PassageService(
-        workspace
+        repository
     ).add_passage(
         "Book",
         "Story",
@@ -64,7 +63,7 @@ def main():
     )
 
     ClaimService(
-        workspace
+        repository
     ).add_claim(
         knowledge_source_name="Book",
         document_name="Story",
@@ -76,7 +75,7 @@ def main():
 
     retrieval = (
         RetrievalContainer(
-            workspace
+            repository
         )
     )
 
@@ -124,6 +123,23 @@ def main():
         <= result.similarity
         <= 1.0
     )
+
+    #
+    # A domain filter that excludes the only claim returns nothing
+    #
+
+    filtered = (
+        retrieval.search_service.search(
+            KnowledgeQuery(
+                text="How do I create tension?",
+                knowledge_domains=[
+                    KnowledgeDomain.DIALOGUE
+                ],
+            )
+        )
+    )
+
+    assert filtered == []
 
     print()
 

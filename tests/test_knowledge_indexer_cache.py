@@ -1,3 +1,8 @@
+from support import knowledge_repository
+
+from writersroom.database.embedding_repository import (
+    EmbeddingRepository,
+)
 from writersroom.domains.enums.knowledge_domain import (
     KnowledgeDomain,
 )
@@ -10,17 +15,8 @@ from writersroom.domains.enums.knowledge_source_type import (
 from writersroom.domains.knowledge.embedding import (
     Embedding,
 )
-from writersroom.domains.workspace import (
-    Workspace,
-)
 from writersroom.retrieval.base_embedding_provider import (
     BaseEmbeddingProvider,
-)
-from writersroom.retrieval.claim_repository import (
-    ClaimRepository,
-)
-from writersroom.retrieval.embedding_cache import (
-    EmbeddingCache,
 )
 from writersroom.retrieval.in_memory_vector_store import (
     InMemoryVectorStore,
@@ -47,52 +43,42 @@ class FakeEmbeddingProvider(
 ):
     """Counts embedding requests."""
 
-    def __init__(
-        self,
-    ):
+    def __init__(self):
         self.calls = 0
 
-    def embed(
-        self,
-        text: str,
-    ) -> Embedding:
-
+    def embed(self, text: str) -> Embedding:
         self.calls += 1
 
         return Embedding(
             model="fake",
-            vector=[
-                1.0,
-                2.0,
-                3.0,
-            ],
+            vector=[1.0, 2.0, 3.0],
         )
 
 
 def main():
 
     print(
-        "Testing embedding cache..."
+        "Testing persistent embeddings..."
     )
 
-    workspace = Workspace()
+    repository = knowledge_repository()
 
     KnowledgeSourceService(
-        workspace
+        repository
     ).add_source(
         "Book",
         KnowledgeSourceType.BOOK,
     )
 
     DocumentService(
-        workspace
+        repository
     ).add_document(
         "Book",
         "Story",
     )
 
     PassageService(
-        workspace
+        repository
     ).add_passage(
         "Book",
         "Story",
@@ -101,7 +87,7 @@ def main():
 
     claim = (
         ClaimService(
-            workspace
+            repository
         ).add_claim(
             knowledge_source_name="Book",
             document_name="Story",
@@ -112,64 +98,57 @@ def main():
         ).data
     )
 
-    provider = (
-        FakeEmbeddingProvider()
+    embeddings = EmbeddingRepository(
+        repository.database
     )
 
-    cache = (
-        EmbeddingCache()
+    provider = FakeEmbeddingProvider()
+
+    store = InMemoryVectorStore()
+
+    indexer = KnowledgeIndexer(
+        repository,
+        provider,
+        store,
+        embeddings,
     )
 
-    store = (
-        InMemoryVectorStore()
+    #
+    # Re-indexing the same claim only embeds once
+    #
+
+    indexer.index_claim(claim)
+    indexer.index_claim(claim)
+    indexer.index_claim(claim)
+
+    assert provider.calls == 1
+    assert store.count() == 1
+
+    #
+    # A fresh indexer over the same database (a "restart") reuses the
+    # persisted embedding and never calls the provider.
+    #
+
+    restart_provider = FakeEmbeddingProvider()
+
+    restart_indexer = KnowledgeIndexer(
+        repository,
+        restart_provider,
+        InMemoryVectorStore(),
+        EmbeddingRepository(
+            repository.database
+        ),
     )
 
-    repository = (
-        ClaimRepository(
-            workspace
-        )
-    )
+    restart_indexer.index()
 
-    indexer = (
-        KnowledgeIndexer(
-            repository,
-            provider,
-            store,
-            cache,
-        )
-    )
-
-    indexer.index_claim(
-        claim
-    )
-
-    indexer.index_claim(
-        claim
-    )
-
-    indexer.index_claim(
-        claim
-    )
-
-    assert (
-        provider.calls
-        == 1
-    )
-
-    assert (
-        cache.count()
-        == 1
-    )
-
-    assert (
-        store.count()
-        == 1
-    )
+    assert restart_provider.calls == 0
+    assert restart_indexer.vector_store.count() == 1
 
     print()
 
     print(
-        "Embedding cache test passed."
+        "Persistent embedding test passed."
     )
 
 
