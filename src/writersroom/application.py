@@ -31,7 +31,6 @@ from writersroom.commands.passage_commands import (
 )
 from writersroom.commands.router import CommandRouter
 from writersroom.domains.story.project import Project
-from writersroom.domains.workspace import Workspace
 from writersroom.services.character_relationship_service import (
     CharacterRelationshipService,
 )
@@ -64,8 +63,11 @@ from writersroom.database.database import (
 from writersroom.database.knowledge_repository import (
     KnowledgeRepository,
 )
-from writersroom.database.workspace_import import (
-    WorkspaceJsonImport,
+from writersroom.database.project_repository import (
+    ProjectRepository,
+)
+from writersroom.database.legacy_import import (
+    LegacyImport,
 )
 
 from writersroom.retrieval.retrieval_container import (
@@ -83,8 +85,6 @@ class Application:
     """Main application for WritersRoom."""
 
     def __init__(self):
-        self.workspace = Workspace.load()
-
         self.database = Database()
 
         self.knowledge_repository = (
@@ -93,14 +93,17 @@ class Application:
             )
         )
 
-        WorkspaceJsonImport(
+        self.project_repository = (
+            ProjectRepository(
+                self.database
+            )
+        )
+
+        LegacyImport(
             self.database
         ).run_if_needed()
 
-        self.project = Project.load("Untitled Project")
-
-        if self.project is None:
-            self.project = Project("Untitled Project")
+        self.project = self._initial_project()
 
         self._build_application()
 
@@ -141,7 +144,7 @@ class Application:
 
             response = self.showrunner.respond(prompt)
 
-            self.project.save()
+            self.project_repository.save(self.project)
 
             print(f"\nShowrunner: {response}\n")
 
@@ -154,6 +157,7 @@ class Application:
             raise SystemExit
 
         if self.router.dispatch(command):
+            self.project_repository.save(self.project)
             return True
 
         action = command.lower()
@@ -222,33 +226,40 @@ class Application:
             self.project
         )
 
+        project_id = self.project.identity
+
         self.knowledge_source_service = (
             KnowledgeSourceService(
-                self.knowledge_repository
+                self.knowledge_repository,
+                project_id,
             )
         )
 
         self.document_service = (
             DocumentService(
-                self.knowledge_repository
+                self.knowledge_repository,
+                project_id,
             )
         )
 
         self.passage_service = (
             PassageService(
-                self.knowledge_repository
+                self.knowledge_repository,
+                project_id,
             )
         )
 
         self.claim_service = (
             ClaimService(
-                self.knowledge_repository
+                self.knowledge_repository,
+                project_id,
             )
         )
 
         self.import_service = (
             ImportService(
-                self.knowledge_repository
+                self.knowledge_repository,
+                project_id,
             )
         )
 
@@ -258,7 +269,8 @@ class Application:
 
         self.retrieval = (
             RetrievalContainer(
-                self.knowledge_repository
+                self.knowledge_repository,
+                project_id,
             )
         )
 
@@ -354,6 +366,43 @@ class Application:
         )
 
 
+    def _initial_project(self) -> Project:
+        """Open the most recent project, creating a default if there are none."""
+
+        projects = self.project_repository.list()
+
+        if projects:
+            return self.project_repository.get(projects[0][0])
+
+        return self.project_repository.create("Untitled Project")
+
+    #
+    # Public API (used by the Streamlit UI)
+    #
+
+    def list_projects(self) -> list[tuple[str, str]]:
+        """Return every project as (identity, title)."""
+
+        return self.project_repository.list()
+
+    def open_project(self, identity: str) -> bool:
+        """Switch to an existing project by identity."""
+
+        project = self.project_repository.get(identity)
+
+        if project is None:
+            return False
+
+        self._switch_project(project)
+        return True
+
+    def create_project(self, title: str) -> Project:
+        """Create a project and switch to it."""
+
+        project = self.project_repository.create(title)
+        self._switch_project(project)
+        return project
+
     def _switch_project(self, project: Project):
         """Switch to a different project."""
 
@@ -409,7 +458,7 @@ class Application:
     def _list_projects(self):
         """Display all saved projects."""
 
-        projects = Project.list()
+        projects = self.project_repository.list()
 
         print()
 
@@ -419,23 +468,26 @@ class Application:
             print("Projects")
             print("--------")
 
-            for project in projects:
-                print(project)
+            for _, title in projects:
+                print(title)
 
         print()
 
     def _save_project(self):
         """Save the current project."""
 
-        self.project.save()
+        self.project_repository.save(self.project)
 
         print("\nProject saved.\n")
 
     def _new_project(self, title: str):
         """Create and switch to a new project."""
 
-        project = Project(title)
-        project.save()
+        if self.project_repository.get_by_title(title) is not None:
+            print(f"\nProject '{title}' already exists.\n")
+            return
+
+        project = self.project_repository.create(title)
 
         self._switch_project(project)
 
@@ -444,7 +496,7 @@ class Application:
     def _open_project(self, title: str):
         """Open an existing project."""
 
-        project = Project.load(title)
+        project = self.project_repository.get_by_title(title)
 
         if project is None:
             print(f"\nProject '{title}' was not found.\n")
@@ -459,7 +511,11 @@ class Application:
 
         old_title = self.project.title
 
-        self.project.rename(new_title)
+        self.project.title = new_title
+        self.project_repository.rename(
+            self.project.identity,
+            new_title,
+        )
 
         print(
             f"\nRenamed project '{old_title}' to '{new_title}'."
@@ -484,12 +540,9 @@ class Application:
 
         deleted_title = self.project.title
 
-        self.project.delete()
+        self.project_repository.delete(self.project.identity)
 
-        project = Project("Untitled Project")
-        project.save()
-
-        self._switch_project(project)
+        self._switch_project(self._initial_project())
 
         print(f"\nDeleted project '{deleted_title}'.\n")
 

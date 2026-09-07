@@ -10,8 +10,9 @@ from writersroom.domains.knowledge.passage import (
 class PassageService:
     """Business logic for passages."""
 
-    def __init__(self, repository):
+    def __init__(self, repository, project_id=None):
         self.repository = repository
+        self.project_id = project_id
 
     def add_passage(
         self,
@@ -135,7 +136,8 @@ class PassageService:
 
         knowledge_source = (
             self.repository.get_source_by_name(
-                knowledge_source_name
+                knowledge_source_name,
+                self.project_id,
             )
         )
 

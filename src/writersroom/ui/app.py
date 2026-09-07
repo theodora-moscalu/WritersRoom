@@ -31,6 +31,53 @@ st.set_page_config(
 
 st.title("🎬 WritersRoom")
 
+#
+# Workspace selector — a workspace is one TV series.
+#
+
+projects = application.list_projects()
+project_titles = {identity: title for identity, title in projects}
+NEW_WORKSPACE = "➕ New workspace…"
+
+with st.sidebar:
+
+    st.subheader("Workspace")
+
+    options = list(project_titles) + [NEW_WORKSPACE]
+
+    default_index = (
+        options.index(application.project.identity)
+        if application.project.identity in project_titles
+        else 0
+    )
+
+    choice = st.selectbox(
+        "Current workspace",
+        options=options,
+        index=default_index,
+        format_func=lambda value: (
+            NEW_WORKSPACE
+            if value == NEW_WORKSPACE
+            else project_titles[value]
+        ),
+    )
+
+    if choice == NEW_WORKSPACE:
+
+        new_title = st.text_input("New workspace name")
+
+        if st.button("Create workspace") and new_title.strip():
+            application.create_project(new_title.strip())
+            st.rerun()
+
+    elif choice != application.project.identity:
+        application.open_project(choice)
+        st.rerun()
+
+st.caption(
+    f"Workspace: {application.project.title}"
+)
+
 st.write(
     """
     Welcome to WritersRoom.
@@ -73,6 +120,17 @@ knowledge_source_type = st.selectbox(
     format_func=lambda item: item.value,
 )
 
+knowledge_tier = st.radio(
+    "Knowledge Tier",
+    options=["writing", "general"],
+    format_func=lambda value: (
+        "Writing — screenwriting craft, shared by every workspace"
+        if value == "writing"
+        else "General — world / research, this workspace only"
+    ),
+    horizontal=False,
+)
+
 if st.button("📚 Import Document"):
 
     if uploaded_file is None:
@@ -112,6 +170,7 @@ if st.button("📚 Import Document"):
                 document_name=Path(
                     uploaded_file.name
                 ).stem,
+                tier=knowledge_tier,
             )
         )
 
@@ -124,6 +183,8 @@ if st.button("📚 Import Document"):
             st.session_state.knowledge_source_name = (
                 knowledge_source_name
             )
+
+            st.session_state.knowledge_tier = knowledge_tier
 
             st.success(
                 result.message
@@ -142,6 +203,15 @@ if st.button("🧠 Extract Knowledge"):
 
         st.warning(
             "Please import a document first."
+        )
+
+    elif (
+        st.session_state.get("knowledge_tier") == "general"
+    ):
+
+        st.info(
+            "World-knowledge extraction is not enabled yet. "
+            "The passages are stored; only Writing-tier sources are extracted."
         )
 
     else:

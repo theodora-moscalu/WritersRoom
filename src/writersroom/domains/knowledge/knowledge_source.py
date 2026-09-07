@@ -17,6 +17,8 @@ class KnowledgeSource:
         author: str = "",
         description: str = "",
         documents: list[Document] | None = None,
+        tier: str = "writing",
+        project_id: str | None = None,
     ):
         self.identity = identity
         self.name = name
@@ -24,6 +26,8 @@ class KnowledgeSource:
         self.author = author
         self.description = description
         self.documents = documents or []
+        self.tier = tier
+        self.project_id = project_id
 
     def to_dict(self):
         """Convert the knowledge source to a dictionary."""

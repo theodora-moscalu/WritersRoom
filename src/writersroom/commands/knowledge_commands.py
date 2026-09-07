@@ -56,6 +56,16 @@ class KnowledgeCommands:
             display=lambda t: t.value,
         )
 
+        tier = choose_from_list(
+            title="Choose a knowledge tier:",
+            items=["writing", "general"],
+            display=lambda t: (
+                "Writing knowledge (shared by every workspace)"
+                if t == "writing"
+                else "General knowledge (this workspace only)"
+            ),
+        )
+
         author = input(
             "\nAuthor (optional):\n> "
         ).strip()
@@ -69,6 +79,7 @@ class KnowledgeCommands:
             source_type=source_type,
             author=author,
             description=description,
+            tier=tier,
         )
 
         print(f"\n{result.message}\n")

@@ -50,8 +50,14 @@ class KnowledgeContextBuilder:
 
             claim = result.claim
 
+            kind = (
+                "WORLD"
+                if getattr(claim, "tier", "writing") == "general"
+                else "CRAFT"
+            )
+
             lines.append(
-                f"[{claim.identity}] "
+                f"[{claim.identity}] {kind} · "
                 f"{claim.knowledge_domain.name} / "
                 f"{claim.knowledge_level.name} "
                 f"— from \"{self._source_name(claim)}\""

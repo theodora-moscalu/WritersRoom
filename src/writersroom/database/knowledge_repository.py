@@ -46,19 +46,31 @@ class KnowledgeRepository:
     # Knowledge sources
     #
 
-    def add_source(self, source: KnowledgeSource):
-        """Insert a knowledge source."""
+    def add_source(
+        self,
+        source: KnowledgeSource,
+        tier: str = "writing",
+        project_id: str | None = None,
+    ):
+        """Insert a knowledge source into a tier (writing is shared)."""
+
+        source.tier = tier
+        source.project_id = (
+            project_id if tier == "general" else None
+        )
 
         self.database.execute(
             "INSERT INTO knowledge_sources "
-            "(identity, name, source_type, author, description) "
-            "VALUES (?, ?, ?, ?, ?)",
+            "(identity, name, source_type, author, description, tier, project_id) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
             (
                 source.identity,
                 source.name,
                 source.source_type.value,
                 source.author,
                 source.description,
+                source.tier,
+                source.project_id,
             ),
         )
 
@@ -76,13 +88,17 @@ class KnowledgeRepository:
             else None
         )
 
-    def get_source_by_name(self, name: str) -> KnowledgeSource | None:
-        """Return a knowledge source by name (case-insensitive)."""
+    def get_source_by_name(
+        self,
+        name: str,
+        project_id: str | None = None,
+    ) -> KnowledgeSource | None:
+        """Return a knowledge source by name, within the current scope."""
 
         row = self.database.query_one(
             "SELECT * FROM knowledge_sources "
-            "WHERE lower(name) = lower(?)",
-            (name,),
+            "WHERE lower(name) = lower(?) AND " + self._scope_clause(),
+            (name, project_id),
         )
 
         return (
@@ -91,15 +107,45 @@ class KnowledgeRepository:
             else None
         )
 
-    def list_sources(self) -> list[KnowledgeSource]:
-        """Return every knowledge source."""
+    def list_sources(
+        self,
+        project_id: str | None = None,
+        tier: str | None = None,
+    ) -> list[KnowledgeSource]:
+        """Return knowledge sources visible to the current scope."""
+
+        if tier is not None:
+            rows = self.database.query(
+                "SELECT * FROM knowledge_sources "
+                "WHERE tier = ? AND " + self._scope_clause()
+                + " ORDER BY identity",
+                (tier, project_id),
+            )
+        else:
+            rows = self.database.query(
+                "SELECT * FROM knowledge_sources "
+                "WHERE " + self._scope_clause() + " ORDER BY identity",
+                (project_id,),
+            )
 
         return [
             self._source_from_row(row)
-            for row in self.database.query(
-                "SELECT * FROM knowledge_sources ORDER BY identity"
-            )
+            for row in rows
         ]
+
+    @staticmethod
+    def _scope_clause(alias: str = "") -> str:
+        """SQL predicate: shared writing tier plus one project's general tier.
+
+        The bound parameter is the current project id (or None).
+        """
+
+        prefix = f"{alias}." if alias else ""
+
+        return (
+            f"({prefix}tier = 'writing' OR "
+            f"({prefix}tier = 'general' AND {prefix}project_id = ?))"
+        )
 
     def delete_source(self, identity: str):
         """Delete a knowledge source and everything beneath it."""
@@ -118,6 +164,8 @@ class KnowledgeRepository:
             ),
             author=row["author"],
             description=row["description"],
+            tier=row["tier"],
+            project_id=row["project_id"],
         )
 
     #
@@ -357,15 +405,31 @@ class KnowledgeRepository:
             else None
         )
 
-    def list_claims(self) -> list[Claim]:
-        """Return every claim."""
+    def list_claims(
+        self,
+        project_id: str | None = None,
+    ) -> list[Claim]:
+        """Return claims visible to the current scope, tagged with their tier."""
 
-        return [
-            self._claim_from_row(row)
-            for row in self.database.query(
-                "SELECT * FROM claims ORDER BY identity"
-            )
-        ]
+        rows = self.database.query(
+            "SELECT c.*, ks.tier AS source_tier "
+            "FROM claims c "
+            "JOIN passages p ON p.identity = c.passage_id "
+            "JOIN documents d ON d.identity = p.document_id "
+            "JOIN knowledge_sources ks ON ks.identity = d.knowledge_source_id "
+            "WHERE " + self._scope_clause("ks")
+            + " ORDER BY c.identity",
+            (project_id,),
+        )
+
+        claims = []
+
+        for row in rows:
+            claim = self._claim_from_row(row)
+            claim.tier = row["source_tier"]
+            claims.append(claim)
+
+        return claims
 
     def list_claims_for_passage(
         self,

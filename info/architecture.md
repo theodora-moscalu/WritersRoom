@@ -109,19 +109,17 @@ flowchart TD
     OC -->|local requests| OLLAMA[("Ollama server\n(qwen3:8b, embeddings)")]
 
     subgraph Persistence["Persistence"]
-        KREPO["KnowledgeRepository\n(storage owner - ADR-019)"]
-        DB[("workspace/knowledge.db\n(SQLite: sources, documents,\npassages, claims, provenance,\nembeddings, identity counters)")]
-        WS["Workspace\n(projects list)"]
-        WSJSON[("workspace/workspace.json")]
-        PROJJSON[("Project files")]
-        WJI["WorkspaceJsonImport\n(one-time migration)"]
+        KREPO["KnowledgeRepository\n(library - ADR-019)\nscoped by project_id"]
+        PREPO["ProjectRepository\n(one JSON blob per workspace)"]
+        DB[("workspace/knowledge.db\n(SQLite: projects, knowledge_sources\n[tier + project_id], documents, passages,\nclaims, provenance, embeddings, counters)")]
+        PROJJSON[("projects/*.json\n(legacy)")]
+        LI["LegacyImport\n(one-time migration)"]
     end
 
-    APP --> WS
     APP --> KREPO
+    APP --> PREPO
     KREPO --> DB
-    WS --> WSJSON
-    WJI -.first run.-> DB
-    WSJSON -.legacy library.-> WJI
-    APP --> PROJJSON
+    PREPO --> DB
+    LI -.first run.-> DB
+    PROJJSON -.legacy projects.-> LI
 ```

@@ -141,6 +141,7 @@ def main():
     assert "Whiplash" in block
     assert "Chinatown" not in block
     assert "Demonstrated by the scene." in block
+    assert "CRAFT" in block
 
     print()
     print(block)

@@ -455,6 +455,41 @@ explainable (ADR-008), and the point of the system is better decisions, not more
 
 ---
 
+# ADR-022 — Workspaces and Knowledge Tiers
+
+## Decision
+
+A **workspace is a series** — "The Wine Game" and "Constantinople" are separate workspaces,
+switchable, one open at a time (the top-level class is still called `Project`).
+
+Knowledge is **tiered**:
+
+- **Writing knowledge** — screenwriting craft (books, screenplays, interviews) — is shared by
+  every workspace.
+- **General knowledge** — world / research (wine, Byzantine history) — belongs to one workspace.
+- **Project knowledge** — Story Bible, Characters, Episodes, Notes — belongs to one workspace.
+
+One SQLite database holds everything. `knowledge_sources` carries `tier` (`writing` | `general`)
+and `project_id` (`NULL` for `writing`). Project knowledge is stored as one JSON blob per
+project in a `projects` table. Retrieval for an open workspace sees the writing tier plus that
+workspace's general tier; the vector index is rebuilt on a workspace switch.
+
+## Rationale
+
+Craft knowledge is universal and expensive to build, so it must not be trapped in one series.
+World knowledge and story data are meaningless outside their series and must not leak between
+them (ADR-004). Column scoping keeps it one queryable store; the JSON blob keeps the `Project`
+domain model and its services unchanged for now.
+
+## Consequences
+
+- Every knowledge query is scoped by the open workspace; `project_id=None` means writing-only.
+- Deleting a workspace cascades its general-tier knowledge.
+- World-knowledge *extraction* is deferred — a `general` import stores passages but runs no
+  agent yet. Fully-normalised project tables are a separate follow-up.
+
+---
+
 # Before Implementing Any Feature
 
 Every feature should be checked against these questions.

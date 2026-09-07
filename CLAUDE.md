@@ -87,16 +87,22 @@ the end-user product.
 - **Pluggable strategy = factory.** Provider/strategy selection lives in a small factory
   (`llm/llm_factory.py`, `ProcessorFactory`, `ImporterFactory`, `RetrievalContainer`), driven
   by config or classification — not `if` chains scattered through call sites.
-- **Identity.** Knowledge-library identities come from `KnowledgeRepository.next_identity(prefix)`
-  (typed prefixes in `domains/enums/identity_prefix.py` — `CL` claim, `PV` provenance, `KS`
-  source…), counters stored in the DB. Project-domain entities (Character, Scene…) use their
-  `name` as identity.
-- **Persistence (ADR-020).** The knowledge library lives in SQLite at `workspace/knowledge.db`,
-  reached **only** through `database/knowledge_repository.py` (`KnowledgeRepository`) — no ORM,
-  hand-written SQL, rows mapped to the existing domain objects. Embeddings are derived data,
-  persisted in the same DB (`database/embedding_repository.py`) and rebuilt from claims when
-  stale. `workspace.json` now holds only the projects list; `projects/*.json` are per-project.
-  `database/workspace_import.py` migrates a legacy `workspace.json` library on first run.
+- **Identity.** `KnowledgeRepository.next_identity(prefix)` / `ProjectRepository` allocate ids
+  from typed prefixes in `domains/enums/identity_prefix.py` (`CL` claim, `KS` source, `PR`
+  project…), counters stored in the DB. Project *sub*-entities (Character, Scene…) still use
+  their `name` as identity within the blob.
+- **Persistence (ADR-020, ADR-022).** One SQLite database (`workspace/knowledge.db`) holds
+  everything, reached only through the `database/` repositories — no ORM, hand-written SQL.
+  `KnowledgeRepository` owns the library; `ProjectRepository` stores each project (= workspace
+  = series) as one JSON blob row in the `projects` table. `EmbeddingRepository` holds derived
+  vectors. `database/legacy_import.py` migrates `projects/*.json` and any old `workspace.json`
+  library on first run; `Workspace` and `workspace_import.py` are gone.
+- **Knowledge tiers (ADR-022).** `knowledge_sources.tier` is `writing` (craft — shared by every
+  workspace, `project_id` NULL) or `general` (world/research — one workspace). Services and
+  `RetrievalContainer` take a `project_id`; `KnowledgeRepository.list_claims(project_id)` and
+  `_scope_clause()` return writing ∪ that workspace's general. `Application` rebinds all
+  scoped services + rebuilds the index on a workspace switch (`open_project` / `create_project`).
+  World-tier *extraction* isn't built yet — a `general` import stores passages only.
 - **House style.** Very vertical: one argument per line, blank line between statements, imports
   wrapped in parens. Match the surrounding file.
 - **LLM infrastructure.** `.env` is loaded once in `src/writersroom/__init__.py` via

@@ -85,8 +85,6 @@ class CharacterRelationshipService(BaseEntityService):
             relationship_object
         )
 
-        self.project.save()
-
         return Result.ok(
             "Relationship added.",
             data=relationship_object,

@@ -24,8 +24,9 @@ from writersroom.mappers.claim_mapper import (
 class ClaimService:
     """Business logic for claims."""
 
-    def __init__(self, repository):
+    def __init__(self, repository, project_id=None):
         self.repository = repository
+        self.project_id = project_id
 
     def add_claim(
         self,
@@ -189,7 +190,8 @@ class ClaimService:
         """Resolve a passage by source name, document name and sequence."""
 
         source = self.repository.get_source_by_name(
-            knowledge_source_name
+            knowledge_source_name,
+            self.project_id,
         )
 
         if source is None:

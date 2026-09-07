@@ -23,30 +23,36 @@ from writersroom.services.import_result import (
     ImportResult,
 )
 
+
 class ImportService:
     """Imports documents into the knowledge library."""
 
     def __init__(
         self,
         repository,
+        project_id=None,
     ):
         self.repository = repository
+        self.project_id = project_id
 
         self.knowledge_source_service = (
             KnowledgeSourceService(
-                repository
+                repository,
+                project_id,
             )
         )
 
         self.document_service = (
             DocumentService(
-                repository
+                repository,
+                project_id,
             )
         )
 
         self.passage_service = (
             PassageService(
-                repository
+                repository,
+                project_id,
             )
         )
 
@@ -56,12 +62,14 @@ class ImportService:
         knowledge_source_type: KnowledgeSourceType,
         path: str,
         document_name: str | None = None,
+        tier: str = "writing",
     ) -> Result:
-        """Import a document."""
+        """Import a document into a knowledge tier."""
 
         if (
             self.repository.get_source_by_name(
-                knowledge_source_name
+                knowledge_source_name,
+                self.project_id,
             )
             is None
         ):
@@ -70,6 +78,7 @@ class ImportService:
                 self.knowledge_source_service.add_source(
                     name=knowledge_source_name,
                     source_type=knowledge_source_type,
+                    tier=tier,
                 )
             )
 
@@ -126,8 +135,16 @@ class ImportService:
                 source_unit.text,
             )
 
+        message = f"Imported '{document_name}'."
+
+        if tier == "general":
+            message += (
+                " World-knowledge extraction is not enabled yet — "
+                "the passages are stored but no claims were extracted."
+            )
+
         return Result.ok(
-            f"Imported '{document_name}'.",
+            message,
             data=ImportResult(
                 document=document,
                 processed_document=processed,

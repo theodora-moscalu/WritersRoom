@@ -10,8 +10,9 @@ from writersroom.domains.knowledge.document import (
 class DocumentService:
     """Business logic for documents."""
 
-    def __init__(self, repository):
+    def __init__(self, repository, project_id=None):
         self.repository = repository
+        self.project_id = project_id
 
     def add_document(
         self,
@@ -23,7 +24,8 @@ class DocumentService:
 
         knowledge_source = (
             self.repository.get_source_by_name(
-                knowledge_source_name
+                knowledge_source_name,
+                self.project_id,
             )
         )
 
@@ -76,7 +78,8 @@ class DocumentService:
 
         knowledge_source = (
             self.repository.get_source_by_name(
-                knowledge_source_name
+                knowledge_source_name,
+                self.project_id,
             )
         )
 
@@ -146,7 +149,8 @@ class DocumentService:
 
         knowledge_source = (
             self.repository.get_source_by_name(
-                knowledge_source_name
+                knowledge_source_name,
+                self.project_id,
             )
         )
 

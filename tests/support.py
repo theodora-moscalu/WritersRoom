@@ -4,6 +4,9 @@ from writersroom.database.database import Database
 from writersroom.database.knowledge_repository import (
     KnowledgeRepository,
 )
+from writersroom.database.project_repository import (
+    ProjectRepository,
+)
 
 
 def knowledge_repository() -> KnowledgeRepository:
@@ -11,6 +14,14 @@ def knowledge_repository() -> KnowledgeRepository:
 
     return KnowledgeRepository(
         Database(":memory:")
+    )
+
+
+def project_repository(database=None) -> ProjectRepository:
+    """Return a ProjectRepository, sharing a database when one is given."""
+
+    return ProjectRepository(
+        database or Database(":memory:")
     )
 
 

@@ -13,8 +13,9 @@ from writersroom.domains.knowledge.knowledge_source import (
 class KnowledgeSourceService:
     """Business logic for knowledge sources."""
 
-    def __init__(self, repository):
+    def __init__(self, repository, project_id=None):
         self.repository = repository
+        self.project_id = project_id
 
     def add_source(
         self,
@@ -22,8 +23,9 @@ class KnowledgeSourceService:
         source_type: KnowledgeSourceType,
         author: str = "",
         description: str = "",
+        tier: str = "writing",
     ) -> Result:
-        """Create a knowledge source."""
+        """Create a knowledge source in a tier (writing is shared)."""
 
         name = name.strip()
 
@@ -32,8 +34,16 @@ class KnowledgeSourceService:
                 "Knowledge source name cannot be empty."
             )
 
+        if tier == "general" and self.project_id is None:
+            return Result.fail(
+                "General knowledge needs an open workspace."
+            )
+
         if (
-            self.repository.get_source_by_name(name)
+            self.repository.get_source_by_name(
+                name,
+                self.project_id,
+            )
             is not None
         ):
             return Result.fail(
@@ -50,7 +60,11 @@ class KnowledgeSourceService:
             description=description,
         )
 
-        self.repository.add_source(source)
+        self.repository.add_source(
+            source,
+            tier=tier,
+            project_id=self.project_id,
+        )
 
         return Result.ok(
             f"Added knowledge source '{name}'.",
@@ -58,10 +72,12 @@ class KnowledgeSourceService:
         )
 
     def list_sources(self) -> Result:
-        """Return all knowledge sources."""
+        """Return the knowledge sources visible to the current workspace."""
 
         return Result.ok(
-            data=self.repository.list_sources()
+            data=self.repository.list_sources(
+                self.project_id
+            )
         )
 
     def show_source(
@@ -71,7 +87,8 @@ class KnowledgeSourceService:
         """Return a knowledge source."""
 
         source = self.repository.get_source_by_name(
-            name
+            name,
+            self.project_id,
         )
 
         if source is None:
@@ -90,7 +107,8 @@ class KnowledgeSourceService:
         """Delete a knowledge source."""
 
         source = self.repository.get_source_by_name(
-            name
+            name,
+            self.project_id,
         )
 
         if source is None:

@@ -24,8 +24,10 @@ class RetrievalContainer:
     def __init__(
         self,
         repository,
+        project_id=None,
     ):
         self.repository = repository
+        self.project_id = project_id
 
         self.embedding_repository = (
             EmbeddingRepository(
@@ -47,6 +49,7 @@ class RetrievalContainer:
                 self.provider,
                 self.vector_store,
                 self.embedding_repository,
+                project_id,
             )
         )
 
@@ -66,4 +69,12 @@ class RetrievalContainer:
     def build_index(self):
         """Populate the in-memory vector store from persisted embeddings."""
 
+        self.indexer.index()
+
+    def rebuild(self, project_id=None):
+        """Re-scope and rebuild the index (used when the workspace changes)."""
+
+        self.project_id = project_id
+        self.indexer.project_id = project_id
+        self.vector_store.clear()
         self.indexer.index()

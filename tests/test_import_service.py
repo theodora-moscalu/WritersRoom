@@ -114,6 +114,51 @@ def main():
         )
     )
 
+    #
+    # General-tier import: passages are stored, no extraction runs
+    #
+
+    from writersroom.database.project_repository import (
+        ProjectRepository,
+    )
+    from writersroom.services.import_service import ImportService as _IS
+
+    project = ProjectRepository(
+        repository.database
+    ).create("The Wine Game")
+
+    general_import = _IS(repository, project.identity)
+
+    world_file = Path("tests/world.txt")
+    world_file.write_text(
+        "Counterfeit Burgundy often has mismatched fill levels.",
+        encoding="utf-8",
+    )
+
+    result = general_import.import_document(
+        knowledge_source_name="Wine Fraud",
+        knowledge_source_type=KnowledgeSourceType.RESEARCH_PAPER,
+        path=str(world_file),
+        document_name="Notes",
+        tier="general",
+    )
+
+    assert result.success
+    assert "not enabled yet" in result.message
+
+    source = repository.get_source_by_name(
+        "Wine Fraud", project.identity
+    )
+    assert source.tier == "general"
+    assert len(
+        repository.list_passages(
+            repository.get_document_by_name(
+                source.identity, "Notes"
+            ).identity
+        )
+    ) == 1
+
+    world_file.unlink()
     test_file.unlink()
 
     print(

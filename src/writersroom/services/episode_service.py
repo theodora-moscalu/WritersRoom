@@ -54,8 +54,6 @@ class EpisodeService(BaseEntityService):
 
         episode.logline = logline.strip()
 
-        self.project.save()
-
         return Result.ok(
             f"Updated logline for '{title}'.",
             data=episode,
@@ -70,8 +68,6 @@ class EpisodeService(BaseEntityService):
             )
 
         episode.synopsis = synopsis.strip()
-
-        self.project.save()
 
         return Result.ok(
             f"Updated synopsis for '{title}'.",
@@ -104,8 +100,6 @@ class EpisodeService(BaseEntityService):
 
         episode.characters.append(character.name)
 
-        self.project.save()
-
         return Result.ok(
             f"Added '{character.name}' to '{episode.title}'.",
             data=episode,
@@ -127,8 +121,6 @@ class EpisodeService(BaseEntityService):
         )
 
         episode.scenes.append(scene)
-
-        self.project.save()
 
         return Result.ok(
             f"Added Scene {scene.number} to '{episode.title}'.",
@@ -163,8 +155,6 @@ class EpisodeService(BaseEntityService):
 
         scene.heading = heading.strip()
 
-        self.project.save()
-
         return Result.ok(
             f"Updated Scene {scene.number}.",
             data=scene,
@@ -197,8 +187,6 @@ class EpisodeService(BaseEntityService):
             )
 
         scene.summary = summary.strip()
-
-        self.project.save()
 
         return Result.ok(
             f"Updated Scene {scene.number}.",
@@ -250,8 +238,6 @@ class EpisodeService(BaseEntityService):
         if character.name not in episode.characters:
             episode.characters.append(character.name)
 
-        self.project.save()
-
         return Result.ok(
             f"Added '{character.name}' to Scene {scene.number}.",
             data=scene,
@@ -302,8 +288,6 @@ class EpisodeService(BaseEntityService):
 
         if location.name not in episode.locations:
             episode.locations.append(location.name)
-
-        self.project.save()
 
         return Result.ok(
             f"Added '{location.name}' to Scene {scene.number}.",

@@ -21,8 +21,10 @@ class KnowledgeIndexer:
         embedding_provider: BaseEmbeddingProvider,
         vector_store: BaseVectorStore,
         embedding_repository,
+        project_id=None,
     ):
         self.repository = repository
+        self.project_id = project_id
 
         self.embedding_provider = (
             embedding_provider
@@ -37,10 +39,12 @@ class KnowledgeIndexer:
         )
 
     def index(self):
-        """Index every stored claim."""
+        """Index every claim visible to the current workspace scope."""
 
         for claim in (
-            self.repository.list_claims()
+            self.repository.list_claims(
+                self.project_id
+            )
         ):
 
             self.index_claim(claim)

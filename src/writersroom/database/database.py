@@ -4,10 +4,21 @@ from pathlib import Path
 
 
 SCHEMA = """
+CREATE TABLE IF NOT EXISTS projects (
+    identity TEXT PRIMARY KEY,
+    title TEXT NOT NULL UNIQUE,
+    data TEXT NOT NULL,
+    created TEXT NOT NULL,
+    updated TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS knowledge_sources (
     identity TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     source_type TEXT NOT NULL,
+    tier TEXT NOT NULL DEFAULT 'writing',
+    project_id TEXT
+        REFERENCES projects(identity) ON DELETE CASCADE,
     author TEXT NOT NULL DEFAULT '',
     description TEXT NOT NULL DEFAULT ''
 );
@@ -70,7 +81,16 @@ CREATE INDEX IF NOT EXISTS idx_claims_passage
     ON claims(passage_id);
 CREATE INDEX IF NOT EXISTS idx_provenance_claim
     ON provenance(claim_id);
+CREATE INDEX IF NOT EXISTS idx_sources_scope
+    ON knowledge_sources(tier, project_id);
 """
+
+
+# Idempotent column additions for databases created before the projects/tier work.
+MIGRATIONS = (
+    "ALTER TABLE knowledge_sources ADD COLUMN tier TEXT NOT NULL DEFAULT 'writing'",
+    "ALTER TABLE knowledge_sources ADD COLUMN project_id TEXT REFERENCES projects(identity) ON DELETE CASCADE",
+)
 
 
 class Database:
@@ -102,6 +122,12 @@ class Database:
         )
 
         self._connection.executescript(SCHEMA)
+
+        for statement in MIGRATIONS:
+            try:
+                self._connection.execute(statement)
+            except sqlite3.OperationalError:
+                pass
 
         self._connection.commit()
 

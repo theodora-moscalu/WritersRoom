@@ -26,8 +26,6 @@ class BaseEntityService(ABC):
 
         self.add_to_project(entity)
 
-        self.project.save()
-
         return Result.ok(
             f"Added {self.entity_name.lower()} '{name}'.",
             data=entity,

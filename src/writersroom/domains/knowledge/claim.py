@@ -21,10 +21,13 @@ class Claim:
         knowledge_domain: KnowledgeDomain,
         explanation: str = "",
         provenance: list[Provenance] | None = None,
+        tier: str = "writing",
     ):
         self.identity = identity
 
         self.passage_id = passage_id
+
+        self.tier = tier
 
         self.text = text
 

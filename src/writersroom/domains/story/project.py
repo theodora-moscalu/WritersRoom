@@ -1,6 +1,3 @@
-import json
-from pathlib import Path
-
 from writersroom.domains.story.character import Character
 from writersroom.domains.story.character_relationship import CharacterRelationship
 from writersroom.domains.story.episode import Episode
@@ -9,12 +6,20 @@ from writersroom.domains.story.note import Note
 
 
 class Project:
-    """Represents a WritersRoom project."""
+    """Represents a WritersRoom project (one series / one workspace)."""
 
-    PROJECT_DIRECTORY = Path("projects")
-
-    def __init__(self, title: str):
+    def __init__(
+        self,
+        title: str,
+        identity: str | None = None,
+        created: str | None = None,
+        updated: str | None = None,
+    ):
         self.title = title
+        self.identity = identity
+        self.created = created
+        self.updated = updated
+
         self.conversation_history = []
         self.characters = []
         self.character_relationships = []
@@ -22,60 +27,50 @@ class Project:
         self.episodes = []
         self.notes = []
 
-    @property
-    def filename(self):
-        """Return the project's filename."""
+    def to_dict(self):
+        """Convert the project's story data to a dictionary."""
 
-        return self.PROJECT_DIRECTORY / f"{self.title}.json"
-
-    def save(self):
-        """Save the project."""
-
-        self.PROJECT_DIRECTORY.mkdir(exist_ok=True)
-
-        with open(self.filename, "w", encoding="utf-8") as file:
-            json.dump(
-                {
-                    "title": self.title,
-                    "conversation_history": self.conversation_history,
-                    "characters": [
-                        character.to_dict()
-                        for character in self.characters
-                    ],
-                    "character_relationships": [
-                        relationship.to_dict()
-                        for relationship in self.character_relationships
-                    ],
-                    "locations": [
-                        location.to_dict()
-                        for location in self.locations
-                    ],
-                    "episodes": [
-                        episode.to_dict()
-                        for episode in self.episodes
-                    ],
-                    "notes": [
-                        note.to_dict()
-                        for note in self.notes
-                    ],
-                },
-                file,
-                indent=4,
-            )
+        return {
+            "title": self.title,
+            "conversation_history": self.conversation_history,
+            "characters": [
+                character.to_dict()
+                for character in self.characters
+            ],
+            "character_relationships": [
+                relationship.to_dict()
+                for relationship in self.character_relationships
+            ],
+            "locations": [
+                location.to_dict()
+                for location in self.locations
+            ],
+            "episodes": [
+                episode.to_dict()
+                for episode in self.episodes
+            ],
+            "notes": [
+                note.to_dict()
+                for note in self.notes
+            ],
+        }
 
     @classmethod
-    def load(cls, title: str):
-        """Load a project."""
+    def from_dict(
+        cls,
+        data,
+        identity: str | None = None,
+        created: str | None = None,
+        updated: str | None = None,
+    ):
+        """Create a Project from a dictionary."""
 
-        filename = cls.PROJECT_DIRECTORY / f"{title}.json"
-
-        if not filename.exists():
-            return None
-
-        with open(filename, "r", encoding="utf-8") as file:
-            data = json.load(file)
-
-        project = cls(data["title"])
+        project = cls(
+            title=data["title"],
+            identity=identity,
+            created=created,
+            updated=updated,
+        )
 
         project.conversation_history = data.get(
             "conversation_history",
@@ -113,35 +108,6 @@ class Project:
         ]
 
         return project
-
-    @classmethod
-    def list(cls):
-        """Return all project names."""
-
-        cls.PROJECT_DIRECTORY.mkdir(exist_ok=True)
-
-        return sorted(
-            file.stem
-            for file in cls.PROJECT_DIRECTORY.glob("*.json")
-        )
-
-    def rename(self, new_title: str):
-        """Rename the project."""
-
-        old_filename = self.filename
-
-        self.title = new_title
-
-        self.save()
-
-        if old_filename.exists():
-            old_filename.unlink()
-
-    def delete(self):
-        """Delete the project."""
-
-        if self.filename.exists():
-            self.filename.unlink()
 
     #
     # Character methods

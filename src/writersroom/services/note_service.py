@@ -41,8 +41,6 @@ class NoteService:
 
         self.project.add_note(note)
 
-        self.project.save()
-
         return Result.ok(
             f"Created note '{title}'.",
             data=note,
