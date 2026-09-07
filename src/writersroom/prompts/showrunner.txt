@@ -29,6 +29,9 @@ with an id like CL000042).
   sentence it supports.
 - Keep every suggestion consistent with CURRENT PROJECT, especially any stated goals in the
   notes.
+- A CHARACTER GRAPH block may follow — the relationship web around the characters in play, with
+  how each relationship has shifted. Keep suggestions consistent with it, and flag when a beat
+  you propose would reverse or contradict an established relationship state.
 - If the library contains nothing relevant, say so plainly and reason from your own craft
   judgement instead of inventing claim ids.
 - If two claims point in different directions, surface both and explain the trade-off rather

@@ -54,6 +54,7 @@ ADR after discussion. Summary:
 | 021 | **The Showrunner is retrieval-augmented** — each turn it grounds its answer in retrieved claims + project state and cites its evidence. |
 | 022 | **Workspaces are series; knowledge is tiered.** Writing knowledge is shared across workspaces; general and project knowledge belong to one workspace. One SQLite DB, scoped by `tier` + `project_id`. |
 | 023 | **The series bible is imported, not typed.** PowerPoint/doc → `StoryBibleExtractor` (Sonnet, structured JSON) → extract → review → merge into enriched `Character` / `Episode` / `Season` by name, additively. |
+| 024 | **The character graph is a derived NetworkX projection** of the project (never stored, rebuilt per use). Relationships carry `history` (RelationshipBeat); the Showrunner gets a focused ego sub-graph, not the whole web. |
 
 ## Structural model
 
@@ -126,6 +127,12 @@ the end-user product.
   `BiblePipelineService.extract` builds a `BibleReview` matched against the project →
   writer keeps/skips → `.apply` merges by name. `Character` / `Episode` gained fields;
   `domains/story/season.py` is new; `Season` references episodes by title.
+- **Character graph (ADR-024).** `graph/character_graph.py` — `CharacterGraph.from_project()`
+  builds a `networkx.MultiDiGraph` on demand (nodes = characters, edges = relationships with
+  `history`). `agents/graph_context.py` (`GraphContextBuilder`) is the Showrunner's third
+  context source: it renders the ego sub-graph of the characters named in the turn, or the whole
+  web when small, as a `CHARACTER GRAPH` block. `graph` CLI command + a Streamlit graphviz view.
+  `CharacterRelationship.history: list[RelationshipBeat]` records shifts (episode / what / new type).
 
 ## Tests
 

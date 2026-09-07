@@ -29,6 +29,11 @@ class StubKnowledgeContext:
         return "RELEVANT KNOWLEDGE FROM THE LIBRARY\n[CL000042] ..."
 
 
+class StubGraphContext:
+    def build(self, project, focus_text):
+        return "CHARACTER GRAPH\n  Zoe --Rivals--> Marcus"
+
+
 def main():
     print("Testing Showrunner...")
 
@@ -44,6 +49,7 @@ def main():
         llm=client,
         knowledge_context=StubKnowledgeContext(),
         project_context=ProjectContextBuilder(),
+        graph_context=StubGraphContext(),
     )
 
     reply = showrunner.respond(
@@ -56,6 +62,7 @@ def main():
     assert "You are Showrunner" in system["content"]
     assert "CURRENT PROJECT: The Wine Game" in system["content"]
     assert "RELEVANT KNOWLEDGE FROM THE LIBRARY" in system["content"]
+    assert "CHARACTER GRAPH" in system["content"]
 
     #
     # The user turn is the last message

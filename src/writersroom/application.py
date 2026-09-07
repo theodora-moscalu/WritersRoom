@@ -5,6 +5,9 @@ from writersroom.agents.knowledge_context import (
 from writersroom.agents.project_context import (
     ProjectContextBuilder,
 )
+from writersroom.agents.graph_context import (
+    GraphContextBuilder,
+)
 from writersroom.llm.llm_factory import (
     create_showrunner_llm,
 )
@@ -12,6 +15,9 @@ from writersroom.commands.bible_commands import (
     BibleCommands,
 )
 from writersroom.commands.character_commands import CharacterCommands
+from writersroom.commands.graph_commands import (
+    GraphCommands,
+)
 from writersroom.commands.character_relationship_commands import (
     CharacterRelationshipCommands,
 )
@@ -303,11 +309,16 @@ class Application:
             ProjectContextBuilder()
         )
 
+        self.graph_context = (
+            GraphContextBuilder()
+        )
+
         self.showrunner = Showrunner(
             self.project,
             create_showrunner_llm(),
             self.knowledge_context,
             self.project_context,
+            self.graph_context,
         )
 
         self.router = CommandRouter()
@@ -379,6 +390,13 @@ class Application:
             "bible",
             BibleCommands(
                 self.bible_pipeline,
+                self.project,
+            ),
+        )
+
+        self.router.register(
+            "graph",
+            GraphCommands(
                 self.project,
             ),
         )
@@ -460,6 +478,9 @@ class Application:
         print("note list                    List notes")
         print("note show <title>            Show a note")
         print("bible import <path>          Import a series bible (.pptx/.docx/.pdf)")
+        print("graph                        Show the character relationship web")
+        print("graph <name>                 One character's relationships")
+        print("graph between <a> <b>        Shortest connection between two characters")
         print("knowledge add                Add a knowledge source")
         print("knowledge list               List knowledge sources")
         print("knowledge show               Show a knowledge source")

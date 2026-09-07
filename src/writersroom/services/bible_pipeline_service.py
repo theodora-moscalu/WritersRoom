@@ -115,7 +115,7 @@ class BiblePipelineService:
                 BibleReviewItem(
                     kind="relationship",
                     proposed=relationship,
-                    existing=self._find_relationship(project, relationship),
+                    existing=self._find_pair(project, relationship),
                 )
             )
 
@@ -195,9 +195,23 @@ class BiblePipelineService:
             counts["added"] += 1
 
     def _apply_relationship(self, project, item, counts):
-        if self._find_relationship(project, item.proposed) is None:
+        existing = self._find_pair(project, item.proposed)
+
+        if existing is None:
             project.add_character_relationship(item.proposed)
             counts["added"] += 1
+            return
+
+        if item.proposed.relationship != existing.relationship:
+            existing.relationship = item.proposed.relationship
+
+        known = {str(beat) for beat in existing.history}
+
+        for beat in item.proposed.history:
+            if str(beat) not in known:
+                existing.add_beat(beat)
+
+        counts["updated"] += 1
 
     def _apply_note(self, project, item, counts):
         existing = project.find_note_by_title(item.proposed.title)
@@ -232,12 +246,13 @@ class BiblePipelineService:
             if value not in target:
                 target.append(value)
 
-    def _find_relationship(self, project, relationship):
+    def _find_pair(self, project, relationship):
+        """Match a relationship on source and target only (the bible merge key)."""
+
         for existing in project.character_relationships:
             if (
                 existing.source.lower() == relationship.source.lower()
                 and existing.target.lower() == relationship.target.lower()
-                and existing.relationship == relationship.relationship
             ):
                 return existing
 

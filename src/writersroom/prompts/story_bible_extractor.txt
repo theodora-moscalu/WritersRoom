@@ -23,7 +23,15 @@ this exact shape:
     }
   ],
   "relationships": [
-    { "source": "", "type": "", "target": "", "note": "" }
+    {
+      "source": "",
+      "type": "",
+      "target": "",
+      "note": "",
+      "history": [
+        { "episode": "", "description": "", "becomes": "" }
+      ]
+    }
   ],
   "seasons": [
     { "number": 1, "title": "", "logline": "", "arc": "", "question": "", "theme": "" }
@@ -58,9 +66,13 @@ characters
   voice        how they speak
 
 relationships
-  type         one of: Ally, Enemy, Friend, Family, Loves, Reports To, Manages,
-               Mentors, Rivals, Trusts. Pick the closest. If none fit, omit the relationship.
+  type         the CURRENT relationship — one of: Ally, Enemy, Friend, Family, Loves,
+               Reports To, Manages, Mentors, Rivals, Trusts. Pick the closest. If none fit,
+               omit the relationship.
   note         optional colour on the relationship
+  history      only when the bible describes the relationship changing over time — one entry
+               per shift, in order. `becomes` is the new type at that point (from the list
+               above) when the shift is a type change; otherwise leave it "".
 
 seasons
   question     the central dramatic question of the season

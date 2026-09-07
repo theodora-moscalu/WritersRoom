@@ -93,6 +93,29 @@ def main():
     assert len(project.character_relationships) == 1
     assert project.find_season(1).episode_titles == ["Pilot"]
 
+    #
+    # Re-import with a new type + history beat: updates in place, one edge
+    #
+
+    from writersroom.domains.story.relationship_beat import RelationshipBeat
+
+    shifted = CharacterRelationship(
+        source="Nadia",
+        relationship=RelationshipType.RIVALS,
+        target="Marcus",
+        history=[
+            RelationshipBeat(episode="1x04", description="trust breaks", becomes="Rivals")
+        ],
+    )
+    later = BibleExtraction(relationships=[shifted])
+    service.apply(project, service.build_review(later, project))
+
+    edges = project.character_relationships
+    assert len(edges) == 1
+    assert edges[0].relationship == RelationshipType.RIVALS
+    assert len(edges[0].history) == 1
+    assert edges[0].history[0].episode == "1x04"
+
     print()
     print(result.message)
     print("BiblePipelineService merge tests passed.")

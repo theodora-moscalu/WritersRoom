@@ -55,11 +55,20 @@ def main():
     project.add_episode(Episode("Pilot", logline="Zoe arrives."))
     season.add_episode_title("Pilot")
 
+    from writersroom.domains.story.relationship_beat import RelationshipBeat
+
     project.add_character_relationship(
         CharacterRelationship(
             source="Zoe",
             relationship=RelationshipType.RIVALS,
             target="Marcus",
+            history=[
+                RelationshipBeat(
+                    episode="1x04",
+                    description="Marcus exposes Zoe's forgery",
+                    becomes="Rivals",
+                )
+            ],
         )
     )
 
@@ -86,6 +95,8 @@ def main():
     assert "Season 1: Foundations" in block
     assert "question: Will the old guard ever accept Zoe?" in block
     assert "- Pilot" in block
+    assert "1x04" in block  # relationship history tail
+    assert "Marcus exposes Zoe's forgery" in block
 
     print()
     print(block)

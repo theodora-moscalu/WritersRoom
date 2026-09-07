@@ -13,6 +13,9 @@ from writersroom.domains.story.character import (
 from writersroom.domains.story.character_relationship import (
     CharacterRelationship,
 )
+from writersroom.domains.story.relationship_beat import (
+    RelationshipBeat,
+)
 from writersroom.domains.story.episode import (
     Episode,
 )
@@ -135,6 +138,15 @@ class StoryBibleExtractor(Agent):
                     source=source,
                     relationship=relationship_type,
                     target=target,
+                    history=[
+                        RelationshipBeat(
+                            episode=beat.get("episode", ""),
+                            description=beat.get("description", ""),
+                            becomes=beat.get("becomes", ""),
+                        )
+                        for beat in entry.get("history", [])
+                        if beat.get("description") or beat.get("becomes")
+                    ],
                 )
             )
 

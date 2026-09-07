@@ -500,6 +500,29 @@ if "bible_review" in st.session_state:
 
 st.divider()
 
+#
+# Character graph
+#
+
+st.subheader("🕸 Character Graph")
+
+from writersroom.graph.character_graph import (
+    CharacterGraph as _CharacterGraph,
+)
+
+_graph = _CharacterGraph.from_project(application.project)
+
+if not _graph.characters():
+    st.caption("No characters yet — import a bible or add characters.")
+else:
+    st.graphviz_chart(_graph.to_dot())
+
+    _isolated = _graph.isolated()
+    if _isolated:
+        st.caption("Isolated: " + ", ".join(_isolated))
+
+st.divider()
+
 st.caption(
     f"Current project: {application.project.title}"
 )

@@ -96,15 +96,19 @@ flowchart TD
         SR["Showrunner"]
         KCTX["KnowledgeContextBuilder"]
         PCTX["ProjectContextBuilder"]
+        GCTX["GraphContextBuilder\n(ego sub-graph)"]
 
         SR --> KCTX
         SR --> PCTX
+        SR --> GCTX
     end
 
     APP --> SR
     KCTX -->|relevant claims| KSS
     KCTX --> KREPO
     PCTX -.project state.-> APP
+    GCTX --> CGRAPH["CharacterGraph\n(networkx, derived per use)"]
+    CGRAPH -.reads.-> PREPO
 
     subgraph LLM["LLM Layer"]
         FACTORY["llm_factory\n(EXTRACTION / SHOWRUNNER provider)"]

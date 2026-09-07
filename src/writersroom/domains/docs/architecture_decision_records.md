@@ -522,6 +522,43 @@ project model stays empty, which starves the Showrunner and every future special
 
 ---
 
+# ADR-024 — The Character Graph is a Derived Projection
+
+## Decision
+
+The character graph is a `networkx.MultiDiGraph` built on demand from the project's characters
+and `CharacterRelationship` list — never stored, rebuilt from the blob each time it is used
+(ADR-002, like the vector index).
+
+Relationships carry `history: list[RelationshipBeat]` — an ordered record of how the
+relationship shifted (episode, what happened, and the new type when it changed). `relationship`
+is the *current* type.
+
+The graph feeds the Showrunner a **focused sub-graph** (the ego graph of the characters named
+in the writer's message, or the whole web when it is small) as a `CHARACTER GRAPH` block, so
+prompt size does not grow with the cast. It also backs `graph` CLI queries and a Streamlit
+view.
+
+## Rationale
+
+A flat relationship list cannot be traversed, cannot answer structural questions (isolated
+characters, paths, unmoved relationships), and dumps the entire web into every prompt. Drama is
+about relationships *changing*, which the triple erased. The graph is the substrate the
+Continuity Editor (ADR-011) and the live-script connection will build on.
+
+Kùzu — the intended engine — was archived (Oct 2025) with no Windows / Python 3.14 wheel;
+NetworkX needs no store because the graph is derived.
+
+## Consequences
+
+- The graph is exactly as rich as the project blob; interaction-level edges arrive when the
+  live script is parsed.
+- The "graph + RAG" hybrid (traverse to scope, embed to rank) needs scene embeddings — a
+  follow-up with the script connection.
+- The stubbed *claim*-relationship graph (`relationship/`) is a separate, untouched concern.
+
+---
+
 # Before Implementing Any Feature
 
 Every feature should be checked against these questions.
