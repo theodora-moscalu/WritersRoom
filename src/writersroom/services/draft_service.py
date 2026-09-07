@@ -37,6 +37,23 @@ class DraftService:
 
         draft.read_at = datetime.now().isoformat(timespec="seconds")
 
+        if cached is not None:
+            draft.changed_scenes = self._changed_scenes(cached[1], draft)
+
         self._cache[path] = (signature, draft)
 
         return draft
+
+    def _changed_scenes(self, previous: Draft, current: Draft) -> list[int]:
+        """Scene numbers whose heading or body differs from the previous read."""
+
+        before = {
+            scene.number: (scene.heading, scene.text)
+            for scene in previous.scenes
+        }
+
+        return [
+            scene.number
+            for scene in current.scenes
+            if before.get(scene.number) != (scene.heading, scene.text)
+        ]

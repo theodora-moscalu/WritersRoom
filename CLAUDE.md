@@ -138,9 +138,10 @@ the end-user product.
   `KitScenaristReader` (opens the `.kitsp` SQLite read-only, parses the `scenario.text` XML) or
   `FountainReader` (`.fountain`) → a `Draft` (`DraftScene`s: heading / text / characters /
   synopsis). `services/draft_service.py` (`DraftService`) caches the parse and re-reads on
-  `(mtime, size)` change. `agents/draft_context.py` (`DraftContextBuilder`) is the Showrunner's
-  fourth context source — the focus scene (by number / character / last) in full plus an
-  OUTLINE. `draft` CLI command + a Streamlit Script panel.
+  `(mtime, size)` change and diffs the new parse against the previous one to flag
+  `Draft.changed_scenes`. `agents/draft_context.py` (`DraftContextBuilder`) is the Showrunner's
+  fourth context source — the focus scene (named number / named character / just-edited / last)
+  in full plus an OUTLINE. `draft` CLI command + a Streamlit sidebar link + Script panel.
 
 ## Tests
 

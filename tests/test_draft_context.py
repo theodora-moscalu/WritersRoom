@@ -61,11 +61,23 @@ def main():
     assert "focus scene 2" in by_character
 
     #
-    # Default: the last scene
+    # Default with no signal: the last scene
     #
 
     default = builder.build(project, "general pacing thoughts")
-    assert "focus scene 3" in default
+    assert "focus scene 3 (last scene)" in default
+
+    #
+    # A detected edit wins over "last scene"
+    #
+
+    edited = Draft(
+        scenes=list(DRAFT.scenes),
+        changed_scenes=[2],
+    )
+    builder_edited = DraftContextBuilder(StubDraftService(edited))
+    from_edit = builder_edited.build(project, "general pacing thoughts")
+    assert "focus scene 2 (just edited)" in from_edit
 
     print()
     print(by_number)

@@ -574,6 +574,7 @@ project read-only and parses the `scenario` table's `text` XML (the current scri
 
 The Showrunner is fed the **focus scene in full plus an OUTLINE of the whole script** — the
 focus scene resolved from a scene number or a character named in the writer's message, else the
+scene whose text changed since the last read (`DraftService` diffs the two parses), else the
 last scene.
 
 ## Rationale

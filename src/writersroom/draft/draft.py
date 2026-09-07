@@ -44,6 +44,15 @@ class Draft:
     source_path: str = ""
     format: str = ""
     read_at: str = ""
+    changed_scenes: list[int] = field(default_factory=list)
+
+    def latest_change(self) -> DraftScene | None:
+        """The scene the writer most recently edited, if the diff caught one."""
+
+        if not self.changed_scenes:
+            return None
+
+        return self.scene(self.changed_scenes[-1])
 
     def scene(self, number: int) -> DraftScene | None:
         for scene in self.scenes:

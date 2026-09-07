@@ -16,7 +16,7 @@ class DraftContextBuilder:
         if draft is None or not draft.scenes:
             return ""
 
-        focus = self._focus_scene(draft, project, focus_text)
+        focus, reason = self._focus_scene(draft, project, focus_text)
 
         scene_text = focus.text
 
@@ -25,7 +25,7 @@ class DraftContextBuilder:
 
         header = (
             f"CURRENT DRAFT — {len(draft.scenes)} scenes, "
-            f"focus scene {focus.number}"
+            f"focus scene {focus.number} ({reason})"
         )
 
         return "\n".join(
@@ -41,6 +41,8 @@ class DraftContextBuilder:
         )
 
     def _focus_scene(self, draft, project, focus_text: str):
+        """Resolve the scene in focus and why: number, character, edit, or last."""
+
         match = re.search(
             r"\bscene\s+(\d+)\b|\b(\d+)[.:]",
             focus_text,
@@ -51,7 +53,7 @@ class DraftContextBuilder:
             number = int(match.group(1) or match.group(2))
             scene = draft.scene(number)
             if scene is not None:
-                return scene
+                return scene, "named"
 
         lowered = focus_text.lower()
 
@@ -62,6 +64,10 @@ class DraftContextBuilder:
             ):
                 scenes = draft.scenes_with_character(character.name)
                 if scenes:
-                    return scenes[-1]
+                    return scenes[-1], f"most recent with {character.name}"
 
-        return draft.last_scene()
+        changed = draft.latest_change()
+        if changed is not None:
+            return changed, "just edited"
+
+        return draft.last_scene(), "last scene"
