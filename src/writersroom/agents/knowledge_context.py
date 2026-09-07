@@ -18,17 +18,28 @@ class KnowledgeContextBuilder:
         self.max_claims = max_claims
         self.min_similarity = min_similarity
 
-    def build(self, query_text: str) -> str:
-        """Return a formatted knowledge block, or '' when nothing is relevant."""
+    def build(self, query_text: str, context_text: str = "") -> str:
+        """Return a formatted knowledge block, or '' when nothing is relevant.
+
+        `context_text` (e.g. the scene being worked on) steers the search when
+        the message alone is too thin to retrieve on.
+        """
 
         query_text = query_text.strip()
+        context_text = context_text.strip()
 
-        if not query_text:
+        if not (query_text or context_text):
             return ""
+
+        search_text = (
+            f"{context_text[:1500]}\n\n{query_text}".strip()
+            if context_text
+            else query_text
+        )
 
         results = self.search_service.search(
             KnowledgeQuery(
-                text=query_text,
+                text=search_text,
                 max_results=self.max_claims * 3,
             )
         )

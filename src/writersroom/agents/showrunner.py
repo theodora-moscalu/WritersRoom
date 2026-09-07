@@ -39,8 +39,17 @@ class Showrunner(Agent):
     ) -> str:
         """Generate a grounded response from the Showrunner."""
 
+        focus_scene = (
+            self.draft_context.focus_scene(self.project, prompt)
+            if self.draft_context
+            else None
+        )
+
         knowledge_block = (
-            self.knowledge_context.build(prompt)
+            self.knowledge_context.build(
+                prompt,
+                context_text=focus_scene.text if focus_scene else "",
+            )
             if self.knowledge_context
             else ""
         )

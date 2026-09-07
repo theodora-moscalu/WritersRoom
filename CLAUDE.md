@@ -120,9 +120,11 @@ the end-user product.
 - **Retrieval-augmented Showrunner (ADR-021).** Each turn, `Showrunner.respond()` builds a
   transient system prompt = base prompt + `ProjectContextBuilder` (the project's characters /
   relationships / seasons / episodes / notes, with the enriched fields) + `KnowledgeContextBuilder`
-  (top claims from the library for that message, via `RetrievalContainer.search_service`). It's
-  told to ground suggestions in those claims, cite their ids, and end with `Grounded in: [CL…]`.
-  `Application` calls `RetrievalContainer.build_index()` at startup (guarded — Ollama may be down).
+  (top claims from the library, via `RetrievalContainer.search_service`, keyed on the message
+  **plus the focus scene text** when a script is linked — `build(query_text, context_text=...)`)
+  + `GraphContextBuilder` + `DraftContextBuilder`. It's told to ground suggestions in those
+  claims, cite their ids, and end with `Grounded in: [CL…]`. `Application` calls
+  `RetrievalContainer.build_index()` at startup (guarded — Ollama may be down).
 - **Bible import (ADR-023).** `bible import <path>` (CLI) / the Story Bible panel (Streamlit) →
   `PptxImporter` (or docx/pdf) → `StoryBibleExtractor` (`agents/`, Sonnet, `respond_json`) →
   `BiblePipelineService.extract` builds a `BibleReview` matched against the project →

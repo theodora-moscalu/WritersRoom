@@ -79,6 +79,14 @@ def main():
     from_edit = builder_edited.build(project, "general pacing thoughts")
     assert "focus scene 2 (just edited)" in from_edit
 
+    #
+    # focus_scene() exposes the same resolution
+    #
+
+    assert builder.focus_scene(project, "does scene 2 land?").number == 2
+    assert builder_edited.focus_scene(project, "vague").number == 2
+    assert builder.focus_scene(Project("Empty"), "anything") is None
+
     print()
     print(by_number)
     print()

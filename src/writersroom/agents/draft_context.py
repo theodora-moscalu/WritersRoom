@@ -16,7 +16,7 @@ class DraftContextBuilder:
         if draft is None or not draft.scenes:
             return ""
 
-        focus, reason = self._focus_scene(draft, project, focus_text)
+        focus, reason = self._resolve(draft, project, focus_text)
 
         scene_text = focus.text
 
@@ -40,7 +40,17 @@ class DraftContextBuilder:
             ]
         )
 
-    def _focus_scene(self, draft, project, focus_text: str):
+    def focus_scene(self, project, focus_text: str):
+        """The scene the writer is working on, or None when no script is linked."""
+
+        draft = self.draft_service.current(project.draft_path)
+
+        if draft is None or not draft.scenes:
+            return None
+
+        return self._resolve(draft, project, focus_text)[0]
+
+    def _resolve(self, draft, project, focus_text: str):
         """Resolve the scene in focus and why: number, character, edit, or last."""
 
         match = re.search(

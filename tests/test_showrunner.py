@@ -25,7 +25,13 @@ class RecordingClient:
 
 
 class StubKnowledgeContext:
-    def build(self, query_text):
+    def __init__(self):
+        self.last_query = None
+        self.last_context = None
+
+    def build(self, query_text, context_text=""):
+        self.last_query = query_text
+        self.last_context = context_text
         return "RELEVANT KNOWLEDGE FROM THE LIBRARY\n[CL000042] ..."
 
 
@@ -35,8 +41,19 @@ class StubGraphContext:
 
 
 class StubDraftContext:
+    _SCENE_TEXT = "Zoe faces Marcus across the cellar. The forgery is between them."
+
     def build(self, project, focus_text):
-        return "CURRENT DRAFT — 3 scenes, focus scene 3\n\nSCENE 3: INT. FLAT"
+        return (
+            "CURRENT DRAFT — 3 scenes, focus scene 3 (just edited)\n\n"
+            f"SCENE 3: INT. CELLAR\n{self._SCENE_TEXT}"
+        )
+
+    def focus_scene(self, project, focus_text):
+        class _Scene:
+            text = StubDraftContext._SCENE_TEXT
+
+        return _Scene()
 
 
 def main():
@@ -48,11 +65,12 @@ def main():
     )
 
     client = RecordingClient()
+    knowledge = StubKnowledgeContext()
 
     showrunner = Showrunner(
         project,
         llm=client,
-        knowledge_context=StubKnowledgeContext(),
+        knowledge_context=knowledge,
         project_context=ProjectContextBuilder(),
         graph_context=StubGraphContext(),
         draft_context=StubDraftContext(),
@@ -70,6 +88,13 @@ def main():
     assert "RELEVANT KNOWLEDGE FROM THE LIBRARY" in system["content"]
     assert "CHARACTER GRAPH" in system["content"]
     assert "CURRENT DRAFT" in system["content"]
+
+    #
+    # The library search is steered by the focus scene, not just the message
+    #
+
+    assert knowledge.last_query == "How should I introduce Zoe?"
+    assert "forgery is between them" in knowledge.last_context
 
     #
     # The user turn is the last message

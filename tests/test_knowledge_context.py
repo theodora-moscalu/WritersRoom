@@ -143,6 +143,19 @@ def main():
     assert "Demonstrated by the scene." in block
     assert "CRAFT" in block
 
+    #
+    # A thin question does not surface the conflict claim; the scene steers it there
+    #
+
+    unsteered = builder.build("does this land?")
+    assert conflict_claim.identity not in unsteered
+
+    steered = builder.build(
+        "does this land?",
+        context_text="A scene of escalating conflict between the two of them.",
+    )
+    assert conflict_claim.identity in steered
+
     print()
     print(block)
     print()

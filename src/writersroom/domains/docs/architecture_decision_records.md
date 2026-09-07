@@ -448,8 +448,10 @@ explainable (ADR-008), and the point of the system is better decisions, not more
 
 ## Consequences
 
-- `KnowledgeContextBuilder` and `ProjectContextBuilder` assemble the per-turn context;
-  neither is persisted into conversation history.
+- `KnowledgeContextBuilder`, `ProjectContextBuilder`, `GraphContextBuilder` and
+  `DraftContextBuilder` assemble the per-turn context; none is persisted into conversation
+  history. When a script is linked, the library search is keyed on the focus scene's text as
+  well as the message, so a bare "is this landing?" still retrieves relevant claims.
 - Retrieval feeds the agent, never the user directly — there is no "search the library" feature.
 - The same retrieval path serves the specialist agents (ADR-011) with domain filters later.
 
