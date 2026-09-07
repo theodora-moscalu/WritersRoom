@@ -15,6 +15,9 @@ class Episode(Entity):
         characters: list[str] | None = None,
         locations: list[str] | None = None,
         scenes: list[Scene] | None = None,
+        a_story: str = "",
+        b_story: str = "",
+        episode_arc: str = "",
     ):
         self.title = title
         self.logline = logline
@@ -23,6 +26,9 @@ class Episode(Entity):
         self.characters = characters or []
         self.locations = locations or []
         self.scenes = scenes or []
+        self.a_story = a_story
+        self.b_story = b_story
+        self.episode_arc = episode_arc
 
     @property
     def identity(self) -> str:
@@ -50,6 +56,9 @@ class Episode(Entity):
                 scene.to_dict()
                 for scene in self.scenes
             ],
+            "a_story": self.a_story,
+            "b_story": self.b_story,
+            "episode_arc": self.episode_arc,
         }
 
     @classmethod
@@ -74,6 +83,9 @@ class Episode(Entity):
             characters=data.get("characters", []),
             locations=data.get("locations", []),
             scenes=scenes,
+            a_story=data.get("a_story", ""),
+            b_story=data.get("b_story", ""),
+            episode_arc=data.get("episode_arc", ""),
         )
 
     def __str__(self):

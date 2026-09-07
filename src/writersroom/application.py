@@ -8,6 +8,9 @@ from writersroom.agents.project_context import (
 from writersroom.llm.llm_factory import (
     create_showrunner_llm,
 )
+from writersroom.commands.bible_commands import (
+    BibleCommands,
+)
 from writersroom.commands.character_commands import CharacterCommands
 from writersroom.commands.character_relationship_commands import (
     CharacterRelationshipCommands,
@@ -76,6 +79,9 @@ from writersroom.retrieval.retrieval_container import (
 
 from writersroom.services.knowledge_pipeline_service import (
     KnowledgePipelineService,
+)
+from writersroom.services.bible_pipeline_service import (
+    BiblePipelineService,
 )
 
 from dotenv import load_dotenv
@@ -267,6 +273,10 @@ class Application:
             KnowledgePipelineService()
         )
 
+        self.bible_pipeline = (
+            BiblePipelineService()
+        )
+
         self.retrieval = (
             RetrievalContainer(
                 self.knowledge_repository,
@@ -365,6 +375,14 @@ class Application:
             ),
         )
 
+        self.router.register(
+            "bible",
+            BibleCommands(
+                self.bible_pipeline,
+                self.project,
+            ),
+        )
+
 
     def _initial_project(self) -> Project:
         """Open the most recent project, creating a default if there are none."""
@@ -403,6 +421,11 @@ class Application:
         self._switch_project(project)
         return project
 
+    def save_project(self):
+        """Persist the current project."""
+
+        self.project_repository.save(self.project)
+
     def _switch_project(self, project: Project):
         """Switch to a different project."""
 
@@ -436,6 +459,7 @@ class Application:
         print("note add project             Add a project note")
         print("note list                    List notes")
         print("note show <title>            Show a note")
+        print("bible import <path>          Import a series bible (.pptx/.docx/.pdf)")
         print("knowledge add                Add a knowledge source")
         print("knowledge list               List knowledge sources")
         print("knowledge show               Show a knowledge source")

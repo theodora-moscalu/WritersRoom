@@ -3,6 +3,7 @@ from writersroom.domains.story.character_relationship import CharacterRelationsh
 from writersroom.domains.story.episode import Episode
 from writersroom.domains.story.location import Location
 from writersroom.domains.story.note import Note
+from writersroom.domains.story.season import Season
 
 
 class Project:
@@ -25,6 +26,7 @@ class Project:
         self.character_relationships = []
         self.locations = []
         self.episodes = []
+        self.seasons = []
         self.notes = []
 
     def to_dict(self):
@@ -48,6 +50,10 @@ class Project:
             "episodes": [
                 episode.to_dict()
                 for episode in self.episodes
+            ],
+            "seasons": [
+                season.to_dict()
+                for season in self.seasons
             ],
             "notes": [
                 note.to_dict()
@@ -100,6 +106,11 @@ class Project:
         project.episodes = [
             Episode.from_dict(episode)
             for episode in data.get("episodes", [])
+        ]
+
+        project.seasons = [
+            Season.from_dict(season)
+            for season in data.get("seasons", [])
         ]
 
         project.notes = [
@@ -180,6 +191,26 @@ class Project:
 
         if episode is not None:
             self.episodes.remove(episode)
+
+    #
+    # Season methods
+    #
+
+    def add_season(self, season: Season):
+        self.seasons.append(season)
+
+    def find_season(self, number: int):
+        for season in self.seasons:
+            if season.number == number:
+                return season
+
+        return None
+
+    def remove_season(self, number: int):
+        season = self.find_season(number)
+
+        if season is not None:
+            self.seasons.remove(season)
 
     #
     # Note methods

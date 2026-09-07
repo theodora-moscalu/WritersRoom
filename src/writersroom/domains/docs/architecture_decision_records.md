@@ -490,6 +490,38 @@ domain model and its services unchanged for now.
 
 ---
 
+# ADR-023 — The Series Bible is Imported, Not Typed
+
+## Decision
+
+The series bible (character sheets, season arcs, episode outlines — usually PowerPoint) is
+imported into structured project knowledge rather than entered command by command.
+
+`Character` carries `want / need / flaw / arc / backstory / voice / traits`; `Episode` carries
+`a_story / b_story / episode_arc`; a `Season` groups episodes by title and holds the season
+logline / arc / dramatic question / theme.
+
+The flow is **extract -> review -> merge**: a `StoryBibleExtractor` (Sonnet, structured JSON)
+proposes entities; the writer keeps or skips each; the kept set is merged into the project **by
+name, additively** — existing entities are updated, nothing is deleted, and a blank from the
+document never clears a populated field.
+
+## Rationale
+
+The bible is where the show is defined and it changes rarely (contrast the live script, which
+is re-read constantly and never stored). Making the writer retype it is the main reason the
+project model stays empty, which starves the Showrunner and every future specialist agent.
+
+## Consequences
+
+- Bible knowledge is project knowledge (ADR-022) — it lives in the project blob and reaches the
+  Showrunner through `ProjectContextBuilder`. It never touches the knowledge library.
+- Merge is name-keyed with no rename detection and no per-entity provenance — those need
+  normalised project tables and are a follow-up, along with chunk-and-merge for very large
+  decks.
+
+---
+
 # Before Implementing Any Feature
 
 Every feature should be checked against these questions.

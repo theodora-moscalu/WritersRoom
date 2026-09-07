@@ -1,5 +1,9 @@
 import anthropic
 
+from writersroom.llm.json_parsing import (
+    parse_json_object,
+)
+
 
 class AnthropicClient:
     """Wrapper around the Anthropic Messages API, matching OllamaClient's interface."""
@@ -53,3 +57,19 @@ class AnthropicClient:
             for block in response.content
             if block.type == "text"
         )
+
+    def respond_json(self, messages: list[dict]) -> dict:
+        """Ask for a JSON object and return it parsed. Retries once."""
+
+        try:
+            return parse_json_object(self.ask(messages))
+        except ValueError:
+            reminder = messages + [
+                {
+                    "role": "user",
+                    "content": (
+                        "Return only a single valid JSON object and nothing else."
+                    ),
+                }
+            ]
+            return parse_json_object(self.ask(reminder))

@@ -8,9 +8,23 @@ class Character(Entity):
         self,
         name: str,
         description: str = "",
+        traits: list[str] | None = None,
+        want: str = "",
+        need: str = "",
+        flaw: str = "",
+        arc: str = "",
+        backstory: str = "",
+        voice: str = "",
     ):
         self.name = name
         self.description = description
+        self.traits = traits or []
+        self.want = want
+        self.need = need
+        self.flaw = flaw
+        self.arc = arc
+        self.backstory = backstory
+        self.voice = voice
 
     @property
     def identity(self) -> str:
@@ -30,6 +44,13 @@ class Character(Entity):
         return {
             "name": self.name,
             "description": self.description,
+            "traits": self.traits,
+            "want": self.want,
+            "need": self.need,
+            "flaw": self.flaw,
+            "arc": self.arc,
+            "backstory": self.backstory,
+            "voice": self.voice,
         }
 
     @classmethod
@@ -38,10 +59,14 @@ class Character(Entity):
 
         return cls(
             name=data["name"],
-            description=data.get(
-                "description",
-                "",
-            ),
+            description=data.get("description", ""),
+            traits=data.get("traits", []),
+            want=data.get("want", ""),
+            need=data.get("need", ""),
+            flaw=data.get("flaw", ""),
+            arc=data.get("arc", ""),
+            backstory=data.get("backstory", ""),
+            voice=data.get("voice", ""),
         )
 
     def __str__(self):

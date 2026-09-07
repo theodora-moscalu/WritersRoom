@@ -12,6 +12,9 @@ from writersroom.importers.markdown_importer import (
 from writersroom.importers.pdf_importer import (
     PdfImporter,
 )
+from writersroom.importers.pptx_importer import (
+    PptxImporter,
+)
 from writersroom.importers.text_importer import (
     TextImporter,
 )
@@ -25,6 +28,7 @@ class ImporterFactory:
         MarkdownImporter,
         DocxImporter,
         PdfImporter,
+        PptxImporter,
     )
 
     @classmethod

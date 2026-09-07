@@ -11,7 +11,7 @@ flowchart TD
 
     subgraph Import["Import Pipeline"]
         IS["ImportService"]
-        IMP["ImporterFactory\n(pdf / docx / txt / md)"]
+        IMP["ImporterFactory\n(pdf / docx / txt / md / pptx)"]
         PROC["ProcessorFactory\n(paragraph / scene processors)"]
         DOC["DocumentService"]
         PASS["PassageService"]
@@ -23,6 +23,19 @@ flowchart TD
     end
 
     APP --> IS
+
+    subgraph Bible["Bible Pipeline (project knowledge)"]
+        BPS["BiblePipelineService"]
+        SBE["StoryBibleExtractor (agent)\nSonnet, structured JSON"]
+        BREV["BibleReview\n(keep / skip per entity)"]
+
+        BPS --> SBE
+        BPS --> BREV
+    end
+
+    APP --> BPS
+    IMP -.pptx / docx / pdf.-> BPS
+    BPS -->|merge by name| PREPO
 
     subgraph Pipeline["Knowledge Pipeline"]
         KPS["KnowledgePipelineService"]

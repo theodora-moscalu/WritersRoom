@@ -418,6 +418,88 @@ st.button("🔍 Search Library")
 
 st.divider()
 
+#
+# Story Bible — import structured project data from a document
+#
+
+st.subheader("📖 Story Bible")
+
+st.caption(
+    f"Import a bible for **{application.project.title}** "
+    "(characters, seasons, episodes, notes)."
+)
+
+bible_file = st.file_uploader(
+    "Choose a bible document",
+    type=["pptx", "docx", "pdf"],
+    key="bible_upload",
+)
+
+if st.button("🧾 Extract Bible"):
+
+    if bible_file is None:
+        st.warning("Please choose a document first.")
+    else:
+        suffix = Path(bible_file.name).suffix
+
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=suffix,
+        ) as temp_file:
+            temp_file.write(bible_file.getbuffer())
+            temp_path = temp_file.name
+
+        with st.spinner("Reading the bible..."):
+            st.session_state.bible_review = (
+                application.bible_pipeline.extract(
+                    temp_path,
+                    application.project,
+                )
+            )
+
+if "bible_review" in st.session_state:
+
+    review = st.session_state.bible_review
+
+    for warning in review.warnings:
+        st.warning(warning)
+
+    if not review.items:
+        st.info("Nothing to import from this document.")
+    else:
+        st.write(f"**{len(review.items)} proposed entities**")
+
+        keep = {}
+
+        for index, item in enumerate(review.items):
+            keep[index] = st.checkbox(
+                item.label(),
+                value=True,
+                key=f"bible_keep_{index}",
+            )
+
+        if st.button("✅ Apply to Workspace"):
+
+            from writersroom.review.review_decision import (
+                ReviewDecision as _RD,
+            )
+
+            for index, item in enumerate(review.items):
+                if not keep[index]:
+                    item.decision = _RD.REJECT
+
+            result = application.bible_pipeline.apply(
+                application.project,
+                review,
+            )
+            application.save_project()
+
+            del st.session_state.bible_review
+            st.success(result.message)
+            st.rerun()
+
+st.divider()
+
 st.caption(
     f"Current project: {application.project.title}"
 )

@@ -50,6 +50,10 @@ ADR after discussion. Summary:
 | 017 | **Never trust LLM output — validate everything.** Extraction output is parsed and every field checked; malformed records are dropped, never guessed or repaired silently. |
 | 018 | **The Knowledge Library owns retrieval,** delegated to interchangeable strategies (embeddings first, graph retrieval later) behind an abstraction. |
 | 019 | **`ClaimRepository` is the only thing that knows how claims are stored.** It gives read access to accepted knowledge; nobody else touches persistence. |
+| 020 | **The knowledge library is stored in SQLite behind `KnowledgeRepository`;** embeddings are derived data persisted in the same DB and rebuilt on demand. |
+| 021 | **The Showrunner is retrieval-augmented** — each turn it grounds its answer in retrieved claims + project state and cites its evidence. |
+| 022 | **Workspaces are series; knowledge is tiered.** Writing knowledge is shared across workspaces; general and project knowledge belong to one workspace. One SQLite DB, scoped by `tier` + `project_id`. |
+| 023 | **The series bible is imported, not typed.** PowerPoint/doc → `StoryBibleExtractor` (Sonnet, structured JSON) → extract → review → merge into enriched `Character` / `Episode` / `Season` by name, additively. |
 
 ## Structural model
 
@@ -113,11 +117,15 @@ the end-user product.
   **plain-text block format** (`LEVEL:` / `DOMAIN:` / …), normalized then parsed — not JSON.
 - **Retrieval-augmented Showrunner (ADR-021).** Each turn, `Showrunner.respond()` builds a
   transient system prompt = base prompt + `ProjectContextBuilder` (the project's characters /
-  relationships / episodes / notes) + `KnowledgeContextBuilder` (top claims from the library
-  for that message, via `RetrievalContainer.search_service`). It's told to ground suggestions
-  in those claims, cite their ids, and end with `Grounded in: [CL…]`. `Application` calls
-  `RetrievalContainer.build_index()` at startup (guarded — Ollama may be down); claims added in
-  a Streamlit session are picked up at the next CLI start.
+  relationships / seasons / episodes / notes, with the enriched fields) + `KnowledgeContextBuilder`
+  (top claims from the library for that message, via `RetrievalContainer.search_service`). It's
+  told to ground suggestions in those claims, cite their ids, and end with `Grounded in: [CL…]`.
+  `Application` calls `RetrievalContainer.build_index()` at startup (guarded — Ollama may be down).
+- **Bible import (ADR-023).** `bible import <path>` (CLI) / the Story Bible panel (Streamlit) →
+  `PptxImporter` (or docx/pdf) → `StoryBibleExtractor` (`agents/`, Sonnet, `respond_json`) →
+  `BiblePipelineService.extract` builds a `BibleReview` matched against the project →
+  writer keeps/skips → `.apply` merges by name. `Character` / `Episode` gained fields;
+  `domains/story/season.py` is new; `Season` references episodes by title.
 
 ## Tests
 
