@@ -74,6 +74,51 @@ with st.sidebar:
         application.open_project(choice)
         st.rerun()
 
+    st.divider()
+
+    #
+    # Script link — paste the path to the current KIT Scenarist / Fountain file
+    #
+
+    st.subheader("Script")
+
+    script_path = st.text_input(
+        "Path to the script file",
+        value=application.project.draft_path,
+        placeholder=r"C:\Users\you\Documents\The Wine Game.kitsp",
+        help="A KIT Scenarist .kitsp project or an exported .fountain file. "
+        "WritersRoom re-reads it whenever it changes.",
+    )
+
+    link_col, unlink_col = st.columns(2)
+
+    if link_col.button("Link") and script_path.strip():
+        application.project.draft_path = script_path.strip()
+        application.save_project()
+        st.rerun()
+
+    if (
+        unlink_col.button("Unlink")
+        and application.project.draft_path
+    ):
+        application.project.draft_path = ""
+        application.save_project()
+        st.rerun()
+
+    if application.project.draft_path:
+        _linked = application.draft_service.current(
+            application.project.draft_path
+        )
+        if _linked is None:
+            st.error("File missing or unreadable.")
+        else:
+            st.caption(
+                f"✅ {Path(application.project.draft_path).name} · "
+                f"{len(_linked.scenes)} scenes"
+            )
+    else:
+        st.caption("No script linked.")
+
 st.caption(
     f"Workspace: {application.project.title}"
 )
@@ -501,36 +546,22 @@ if "bible_review" in st.session_state:
 st.divider()
 
 #
-# Script
+# Script — the scene viewer (link the file in the sidebar)
 #
 
 st.subheader("🎬 Script")
 
-_draft_path = st.text_input(
-    "Script file (KIT Scenarist .kitsp or Fountain)",
-    value=application.project.draft_path,
-    placeholder="C:/path/to/The Wine Game.kitsp",
-)
-
-_cols = st.columns(2)
-
-if _cols[0].button("Link script") and _draft_path.strip():
-    application.project.draft_path = _draft_path.strip()
-    application.save_project()
-    st.rerun()
-
-if _cols[1].button("Unlink") and application.project.draft_path:
-    application.project.draft_path = ""
-    application.save_project()
-    st.rerun()
-
-if application.project.draft_path:
-
+if not application.project.draft_path:
+    st.caption(
+        "Link a KIT Scenarist `.kitsp` or Fountain file in the sidebar to "
+        "see the current draft."
+    )
+else:
     _draft = application.draft_service.current(application.project.draft_path)
 
     if _draft is None:
         st.warning(
-            "Linked, but the file is missing or not a readable script."
+            "The linked script file is missing or not readable."
         )
     elif not _draft.scenes:
         st.info("No scenes found in the script yet.")
