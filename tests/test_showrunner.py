@@ -34,6 +34,11 @@ class StubGraphContext:
         return "CHARACTER GRAPH\n  Zoe --Rivals--> Marcus"
 
 
+class StubDraftContext:
+    def build(self, project, focus_text):
+        return "CURRENT DRAFT — 3 scenes, focus scene 3\n\nSCENE 3: INT. FLAT"
+
+
 def main():
     print("Testing Showrunner...")
 
@@ -50,6 +55,7 @@ def main():
         knowledge_context=StubKnowledgeContext(),
         project_context=ProjectContextBuilder(),
         graph_context=StubGraphContext(),
+        draft_context=StubDraftContext(),
     )
 
     reply = showrunner.respond(
@@ -63,6 +69,7 @@ def main():
     assert "CURRENT PROJECT: The Wine Game" in system["content"]
     assert "RELEVANT KNOWLEDGE FROM THE LIBRARY" in system["content"]
     assert "CHARACTER GRAPH" in system["content"]
+    assert "CURRENT DRAFT" in system["content"]
 
     #
     # The user turn is the last message

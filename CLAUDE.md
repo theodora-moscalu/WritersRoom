@@ -55,6 +55,7 @@ ADR after discussion. Summary:
 | 022 | **Workspaces are series; knowledge is tiered.** Writing knowledge is shared across workspaces; general and project knowledge belong to one workspace. One SQLite DB, scoped by `tier` + `project_id`. |
 | 023 | **The series bible is imported, not typed.** PowerPoint/doc → `StoryBibleExtractor` (Sonnet, structured JSON) → extract → review → merge into enriched `Character` / `Episode` / `Season` by name, additively. |
 | 024 | **The character graph is a derived NetworkX projection** of the project (never stored, rebuilt per use). Relationships carry `history` (RelationshipBeat); the Showrunner gets a focused ego sub-graph, not the whole web. |
+| 025 | **The script is a live external mirror.** A linked file (`Project.draft_path`) parsed into a `Draft` through a `DraftReader` (Fountain now, `.kitsp` later), re-read on file change, never stored; the Showrunner gets the focus scene in full + an outline. |
 
 ## Structural model
 
@@ -133,6 +134,13 @@ the end-user product.
   context source: it renders the ego sub-graph of the characters named in the turn, or the whole
   web when small, as a `CHARACTER GRAPH` block. `graph` CLI command + a Streamlit graphviz view.
   `CharacterRelationship.history: list[RelationshipBeat]` records shifts (episode / what / new type).
+- **Script connection (ADR-025).** `draft/` package: `DraftReaderFactory` → `FountainReader`
+  parses a linked `.fountain` file into a `Draft` (`DraftScene`s with heading / text /
+  characters / synopsis). `services/draft_service.py` (`DraftService`) caches the parse and
+  re-reads on `(mtime, size)` change. `agents/draft_context.py` (`DraftContextBuilder`) is the
+  Showrunner's fourth context source — the focus scene (by number / character / last) in full
+  plus an OUTLINE. `draft` CLI command + a Streamlit Script panel. `.kitsp` reader is a
+  follow-up behind the same `DraftReader` interface.
 
 ## Tests
 

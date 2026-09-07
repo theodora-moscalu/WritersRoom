@@ -501,6 +501,53 @@ if "bible_review" in st.session_state:
 st.divider()
 
 #
+# Script
+#
+
+st.subheader("🎬 Script")
+
+_draft_path = st.text_input(
+    "Fountain script file",
+    value=application.project.draft_path,
+    placeholder="C:/path/to/draft.fountain",
+)
+
+_cols = st.columns(2)
+
+if _cols[0].button("Link script") and _draft_path.strip():
+    application.project.draft_path = _draft_path.strip()
+    application.save_project()
+    st.rerun()
+
+if _cols[1].button("Unlink") and application.project.draft_path:
+    application.project.draft_path = ""
+    application.save_project()
+    st.rerun()
+
+if application.project.draft_path:
+
+    _draft = application.draft_service.current(application.project.draft_path)
+
+    if _draft is None:
+        st.warning(
+            "Linked, but the file is missing or not a readable script."
+        )
+    elif not _draft.scenes:
+        st.info("No scenes found in the script yet.")
+    else:
+        st.caption(f"{len(_draft.scenes)} scenes · read {_draft.read_at}")
+
+        _scene = st.selectbox(
+            "Scene",
+            options=_draft.scenes,
+            format_func=lambda s: f"{s.number}. {s.heading}",
+        )
+
+        st.text(_scene.text)
+
+st.divider()
+
+#
 # Character graph
 #
 

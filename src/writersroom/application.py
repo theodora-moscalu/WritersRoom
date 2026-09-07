@@ -8,6 +8,9 @@ from writersroom.agents.project_context import (
 from writersroom.agents.graph_context import (
     GraphContextBuilder,
 )
+from writersroom.agents.draft_context import (
+    DraftContextBuilder,
+)
 from writersroom.llm.llm_factory import (
     create_showrunner_llm,
 )
@@ -17,6 +20,9 @@ from writersroom.commands.bible_commands import (
 from writersroom.commands.character_commands import CharacterCommands
 from writersroom.commands.graph_commands import (
     GraphCommands,
+)
+from writersroom.commands.draft_commands import (
+    DraftCommands,
 )
 from writersroom.commands.character_relationship_commands import (
     CharacterRelationshipCommands,
@@ -89,6 +95,9 @@ from writersroom.services.knowledge_pipeline_service import (
 from writersroom.services.bible_pipeline_service import (
     BiblePipelineService,
 )
+from writersroom.services.draft_service import (
+    DraftService,
+)
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -114,6 +123,8 @@ class Application:
         LegacyImport(
             self.database
         ).run_if_needed()
+
+        self.draft_service = DraftService()
 
         self.project = self._initial_project()
 
@@ -313,12 +324,19 @@ class Application:
             GraphContextBuilder()
         )
 
+        self.draft_context = (
+            DraftContextBuilder(
+                self.draft_service
+            )
+        )
+
         self.showrunner = Showrunner(
             self.project,
             create_showrunner_llm(),
             self.knowledge_context,
             self.project_context,
             self.graph_context,
+            self.draft_context,
         )
 
         self.router = CommandRouter()
@@ -397,6 +415,14 @@ class Application:
         self.router.register(
             "graph",
             GraphCommands(
+                self.project,
+            ),
+        )
+
+        self.router.register(
+            "draft",
+            DraftCommands(
+                self.draft_service,
                 self.project,
             ),
         )
@@ -481,6 +507,8 @@ class Application:
         print("graph                        Show the character relationship web")
         print("graph <name>                 One character's relationships")
         print("graph between <a> <b>        Shortest connection between two characters")
+        print("draft link <path>            Link a Fountain script file")
+        print("draft scene <n>              Show a scene from the linked script")
         print("knowledge add                Add a knowledge source")
         print("knowledge list               List knowledge sources")
         print("knowledge show               Show a knowledge source")

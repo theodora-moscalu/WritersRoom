@@ -559,6 +559,37 @@ NetworkX needs no store because the graph is derived.
 
 ---
 
+# ADR-025 — The Script is a Live External Mirror
+
+## Decision
+
+The writer's script lives in their screenwriting tool (KIT Scenarist), not in WritersRoom.
+WritersRoom links a script *file*, parses it into a `Draft` through a `DraftReader`, and
+re-parses whenever the file changes on disk. The `Draft` is never stored — it is recomputed
+from the file (contrast the bible, which is stored project knowledge — ADR-022).
+
+Readers are pluggable: Fountain first (documented, robust); a `.kitsp` reader is a follow-up
+that opens the SQLite project read-only.
+
+The Showrunner is fed the **focus scene in full plus an OUTLINE of the whole script** — the
+focus scene resolved from a scene number or a character named in the writer's message, else the
+last scene.
+
+## Rationale
+
+The point of the system is to improve what actually reaches the page (ADR-009), which is
+impossible while the Showrunner only sees the bible abstraction. Mirroring rather than storing
+avoids a stale second copy and keeps the writer's tool authoritative. The whole script cannot
+go in every prompt, so context is a focused slice, like the character graph's ego sub-graph.
+
+## Consequences
+
+- `Project.draft_path` is the only new persisted field; `DraftService` caches the parse and
+  refreshes on `(mtime, size)` change — polled on demand, no thread.
+- The Continuity Editor and scene-embedding retrieval build on this `Draft` model.
+
+---
+
 # Before Implementing Any Feature
 
 Every feature should be checked against these questions.

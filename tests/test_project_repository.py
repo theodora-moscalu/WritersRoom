@@ -38,6 +38,7 @@ def main():
     wine.add_character(
         Character(name="Zoe", description="A sommelier.")
     )
+    wine.draft_path = "C:/scripts/wine.fountain"
     projects.save(wine)
 
     reloaded = projects.get(wine.identity)
@@ -45,6 +46,7 @@ def main():
     assert reloaded.title == "The Wine Game"
     assert len(reloaded.characters) == 1
     assert reloaded.characters[0].name == "Zoe"
+    assert reloaded.draft_path == "C:/scripts/wine.fountain"
 
     #
     # Lookup and listing

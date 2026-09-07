@@ -97,10 +97,12 @@ flowchart TD
         KCTX["KnowledgeContextBuilder"]
         PCTX["ProjectContextBuilder"]
         GCTX["GraphContextBuilder\n(ego sub-graph)"]
+        DCTX["DraftContextBuilder\n(focus scene + outline)"]
 
         SR --> KCTX
         SR --> PCTX
         SR --> GCTX
+        SR --> DCTX
     end
 
     APP --> SR
@@ -109,6 +111,9 @@ flowchart TD
     PCTX -.project state.-> APP
     GCTX --> CGRAPH["CharacterGraph\n(networkx, derived per use)"]
     CGRAPH -.reads.-> PREPO
+    DCTX --> DSVC["DraftService\n(re-read on change)"]
+    DSVC --> FR["FountainReader"]
+    FR -.reads.-> SCRIPT[("draft.fountain\n(external, from KIT Scenarist)")]
 
     subgraph LLM["LLM Layer"]
         FACTORY["llm_factory\n(EXTRACTION / SHOWRUNNER provider)"]

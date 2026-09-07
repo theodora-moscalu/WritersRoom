@@ -21,6 +21,7 @@ class Project:
         self.created = created
         self.updated = updated
 
+        self.draft_path = ""
         self.conversation_history = []
         self.characters = []
         self.character_relationships = []
@@ -34,6 +35,7 @@ class Project:
 
         return {
             "title": self.title,
+            "draft_path": self.draft_path,
             "conversation_history": self.conversation_history,
             "characters": [
                 character.to_dict()
@@ -77,6 +79,8 @@ class Project:
             created=created,
             updated=updated,
         )
+
+        project.draft_path = data.get("draft_path", "")
 
         project.conversation_history = data.get(
             "conversation_history",

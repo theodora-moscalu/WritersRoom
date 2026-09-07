@@ -19,6 +19,7 @@ class Showrunner(Agent):
         knowledge_context=None,
         project_context=None,
         graph_context=None,
+        draft_context=None,
     ):
         super().__init__(
             name="Showrunner",
@@ -30,6 +31,7 @@ class Showrunner(Agent):
         self.knowledge_context = knowledge_context
         self.project_context = project_context
         self.graph_context = graph_context
+        self.draft_context = draft_context
 
     def respond(
         self,
@@ -55,11 +57,18 @@ class Showrunner(Agent):
             else ""
         )
 
+        draft_block = (
+            self.draft_context.build(self.project, prompt)
+            if self.draft_context
+            else ""
+        )
+
         system = "\n\n".join(
             part
             for part in [
                 self.system_prompt,
                 project_block,
+                draft_block,
                 graph_block,
                 knowledge_block,
             ]
