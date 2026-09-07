@@ -8,7 +8,7 @@ class DraftScene:
 
     number: int
     heading: str
-    text: str
+    text: str = ""
     characters: list[str] = field(default_factory=list)
     synopsis: str = ""
 

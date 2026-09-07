@@ -507,9 +507,9 @@ st.divider()
 st.subheader("🎬 Script")
 
 _draft_path = st.text_input(
-    "Fountain script file",
+    "Script file (KIT Scenarist .kitsp or Fountain)",
     value=application.project.draft_path,
-    placeholder="C:/path/to/draft.fountain",
+    placeholder="C:/path/to/The Wine Game.kitsp",
 )
 
 _cols = st.columns(2)

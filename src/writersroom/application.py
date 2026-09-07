@@ -507,7 +507,7 @@ class Application:
         print("graph                        Show the character relationship web")
         print("graph <name>                 One character's relationships")
         print("graph between <a> <b>        Shortest connection between two characters")
-        print("draft link <path>            Link a Fountain script file")
+        print("draft link <path>            Link a KIT Scenarist (.kitsp) or Fountain script")
         print("draft scene <n>              Show a scene from the linked script")
         print("knowledge add                Add a knowledge source")
         print("knowledge list               List knowledge sources")

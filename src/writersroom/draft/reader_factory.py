@@ -2,6 +2,7 @@ from pathlib import Path
 
 from writersroom.draft.base_reader import DraftReader
 from writersroom.draft.fountain_reader import FountainReader
+from writersroom.draft.kitscenarist_reader import KitScenaristReader
 
 
 class DraftReaderFactory:
@@ -9,6 +10,7 @@ class DraftReaderFactory:
 
     _readers = (
         FountainReader,
+        KitScenaristReader,
     )
 
     @classmethod
@@ -23,5 +25,5 @@ class DraftReaderFactory:
 
         raise ValueError(
             f"No script reader for '{extension}'. "
-            "Export the script to Fountain (.fountain)."
+            "Link a .kitsp or .fountain file."
         )

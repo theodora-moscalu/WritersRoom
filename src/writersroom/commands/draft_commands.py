@@ -50,7 +50,7 @@ class DraftCommands:
         if draft is None:
             print(
                 "\nLinked, but the file could not be parsed as a script "
-                "(export to Fountain).\n"
+                "(link a .kitsp or .fountain file).\n"
             )
             return
 
@@ -66,7 +66,9 @@ class DraftCommands:
         print()
 
         if not self.project.draft_path:
-            print("No script linked. Use: draft link <path to .fountain>")
+            print(
+                "No script linked. Use: draft link <path to .kitsp or .fountain>"
+            )
             print()
             return
 
@@ -132,7 +134,7 @@ class DraftCommands:
         print()
         print("Script commands")
         print("---------------")
-        print("draft link <path>    Link a Fountain script file")
+        print("draft link <path>    Link a KIT Scenarist (.kitsp) or Fountain script")
         print("draft status         Show the linked script")
         print("draft scenes         List every scene")
         print("draft scene <n>      Show one scene in full")

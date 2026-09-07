@@ -112,8 +112,8 @@ flowchart TD
     GCTX --> CGRAPH["CharacterGraph\n(networkx, derived per use)"]
     CGRAPH -.reads.-> PREPO
     DCTX --> DSVC["DraftService\n(re-read on change)"]
-    DSVC --> FR["FountainReader"]
-    FR -.reads.-> SCRIPT[("draft.fountain\n(external, from KIT Scenarist)")]
+    DSVC --> DRF["DraftReaderFactory\nKitScenaristReader / FountainReader"]
+    DRF -.reads read-only.-> SCRIPT[("The Wine Game.kitsp\n(KIT Scenarist project)")]
 
     subgraph LLM["LLM Layer"]
         FACTORY["llm_factory\n(EXTRACTION / SHOWRUNNER provider)"]

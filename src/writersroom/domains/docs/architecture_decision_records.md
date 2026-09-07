@@ -568,8 +568,9 @@ WritersRoom links a script *file*, parses it into a `Draft` through a `DraftRead
 re-parses whenever the file changes on disk. The `Draft` is never stored — it is recomputed
 from the file (contrast the bible, which is stored project knowledge — ADR-022).
 
-Readers are pluggable: Fountain first (documented, robust); a `.kitsp` reader is a follow-up
-that opens the SQLite project read-only.
+Readers are pluggable behind `DraftReader`: `KitScenaristReader` opens the `.kitsp` SQLite
+project read-only and parses the `scenario` table's `text` XML (the current script; the
+`scenario_changes` patch log is ignored); `FountainReader` parses exported Fountain.
 
 The Showrunner is fed the **focus scene in full plus an OUTLINE of the whole script** — the
 focus scene resolved from a scene number or a character named in the writer's message, else the
@@ -585,7 +586,8 @@ go in every prompt, so context is a focused slice, like the character graph's eg
 ## Consequences
 
 - `Project.draft_path` is the only new persisted field; `DraftService` caches the parse and
-  refreshes on `(mtime, size)` change — polled on demand, no thread.
+  refreshes on `(mtime, size)` change — polled on demand, no thread. `.kitsp` is opened
+  `mode=ro`; SQLite readers see the last committed state even while KIT Scenarist writes.
 - The Continuity Editor and scene-embedding retrieval build on this `Draft` model.
 
 ---

@@ -134,13 +134,13 @@ the end-user product.
   context source: it renders the ego sub-graph of the characters named in the turn, or the whole
   web when small, as a `CHARACTER GRAPH` block. `graph` CLI command + a Streamlit graphviz view.
   `CharacterRelationship.history: list[RelationshipBeat]` records shifts (episode / what / new type).
-- **Script connection (ADR-025).** `draft/` package: `DraftReaderFactory` → `FountainReader`
-  parses a linked `.fountain` file into a `Draft` (`DraftScene`s with heading / text /
-  characters / synopsis). `services/draft_service.py` (`DraftService`) caches the parse and
-  re-reads on `(mtime, size)` change. `agents/draft_context.py` (`DraftContextBuilder`) is the
-  Showrunner's fourth context source — the focus scene (by number / character / last) in full
-  plus an OUTLINE. `draft` CLI command + a Streamlit Script panel. `.kitsp` reader is a
-  follow-up behind the same `DraftReader` interface.
+- **Script connection (ADR-025).** `draft/` package: `DraftReaderFactory` →
+  `KitScenaristReader` (opens the `.kitsp` SQLite read-only, parses the `scenario.text` XML) or
+  `FountainReader` (`.fountain`) → a `Draft` (`DraftScene`s: heading / text / characters /
+  synopsis). `services/draft_service.py` (`DraftService`) caches the parse and re-reads on
+  `(mtime, size)` change. `agents/draft_context.py` (`DraftContextBuilder`) is the Showrunner's
+  fourth context source — the focus scene (by number / character / last) in full plus an
+  OUTLINE. `draft` CLI command + a Streamlit Script panel.
 
 ## Tests
 
